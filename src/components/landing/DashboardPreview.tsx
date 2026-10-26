@@ -5,6 +5,7 @@ import { useI18n } from "@/lib/i18n/I18nProvider";
 import { cn } from "@/lib/utils";
 
 import { KpiCard } from "./KpiCard";
+import { NumberText } from "./NumberText";
 import { RevenueChart } from "./RevenueChart";
 import { SAMPLE_KPIS } from "./preview-data";
 
@@ -97,7 +98,8 @@ export function DashboardPreview({ className }: { className?: string }) {
                   <Sparkles className="h-4 w-4" aria-hidden="true" />
                   {t.preview.insightLabel}
                 </span>
-                <p className="text-sm leading-relaxed text-on-navy">{t.preview.insightText}</p>
+                <p className="text-sm leading-relaxed text-on-navy"><NumberText text={t.preview.insightText} />
+                </p>
               </div>
               <div className="flex flex-col gap-2" aria-hidden="true">
                 <div className="flex items-baseline justify-between text-xs text-on-navy-muted">

@@ -3,6 +3,7 @@ import { AlertTriangle, CheckCircle2, Clock, MessageSquareText, Sparkles } from 
 import { useI18n } from "@/lib/i18n/I18nProvider";
 import { cn } from "@/lib/utils";
 
+import { NumberText } from "./NumberText";
 import { Reveal } from "./Reveal";
 import { SectionHeading } from "./SectionHeading";
 
@@ -11,24 +12,6 @@ const TONES = {
   positive: { icon: CheckCircle2, tile: "bg-positive-soft text-positive" },
   info: { icon: Clock, tile: "bg-secondary text-steel" },
 } as const;
-
-/** Renders "$2,400"-style amounts inside copy as isolated LTR numbers. */
-function WithNumbers({ text }: { text: string }) {
-  const parts = text.split(/(\$[\d,.]+)/g);
-  return (
-    <>
-      {parts.map((part, i) =>
-        part.startsWith("$") ? (
-          <span key={i} className="num font-semibold text-navy">
-            {part}
-          </span>
-        ) : (
-          part
-        ),
-      )}
-    </>
-  );
-}
 
 export function InsightsPreview() {
   const { t } = useI18n();
@@ -82,10 +65,10 @@ export function InsightsPreview() {
                       </span>
                       <div className="flex min-w-0 flex-col gap-1">
                         <p className="text-sm font-semibold text-navy">
-                          <WithNumbers text={item.title} />
+                          <NumberText text={item.title} />
                         </p>
                         <p className="text-sm leading-relaxed text-muted-foreground">
-                          <WithNumbers text={item.body} />
+                          <NumberText text={item.body} emphasize />
                         </p>
                       </div>
                     </li>
