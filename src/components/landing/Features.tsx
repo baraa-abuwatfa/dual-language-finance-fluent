@@ -24,7 +24,7 @@ export function Features() {
 
         <ul className="mt-12 grid gap-4 sm:mt-16 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
           {t.features.items.map((item, i) => {
-            const { icon: Icon, tile } = FEATURE_STYLES[i];
+            const { icon: Icon, tile } = FEATURE_STYLES[i % FEATURE_STYLES.length] ?? { icon: FileText, tile: "" };
             return (
               <Reveal as="li" key={item.title} delay={i * 90}>
                 <article className="lift group flex h-full flex-col gap-5 rounded-2xl border border-border bg-card p-6 shadow-card hover:border-mist">

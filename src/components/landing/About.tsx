@@ -24,7 +24,7 @@ export function About() {
 
         <ul className="flex flex-col divide-y divide-border rounded-2xl border border-border bg-background">
           {t.about.values.map((value, i) => {
-            const Icon = VALUE_ICONS[i];
+            const Icon = VALUE_ICONS[i] ?? Eye;
             return (
               <Reveal as="li" key={value.title} delay={i * 100} className="flex gap-4 p-5 sm:p-6">
                 <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-champagne-soft text-taupe">

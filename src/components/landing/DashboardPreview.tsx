@@ -47,7 +47,7 @@ export function DashboardPreview({ className }: { className?: string }) {
             </span>
           </div>
           {t.preview.sidebar.map((item, i) => {
-            const Icon = SIDEBAR_ICONS[i];
+            const Icon = SIDEBAR_ICONS[i] ?? LayoutGrid;
             return (
               <span
                 key={item}

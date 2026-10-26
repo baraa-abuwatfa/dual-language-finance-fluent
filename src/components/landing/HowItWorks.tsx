@@ -23,7 +23,7 @@ export function HowItWorks() {
             className="absolute inset-x-[16%] top-8 hidden border-t border-dashed border-taupe/50 md:block"
           />
           {t.how.steps.map((step, i) => {
-            const Icon = STEP_ICONS[i];
+            const Icon = STEP_ICONS[i] ?? Lightbulb;
             return (
               <Reveal as="li" key={step.title} delay={i * 120} className="relative">
                 <div className="flex h-full flex-col items-start gap-5 rounded-2xl border border-border bg-card p-6 shadow-card md:items-center md:text-center">
