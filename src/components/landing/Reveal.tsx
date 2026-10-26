@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from "react";
+import type { CSSProperties, ReactNode, Ref } from "react";
 
 import { useReveal } from "@/hooks/use-reveal";
 import { cn } from "@/lib/utils";
@@ -15,7 +15,7 @@ export function Reveal({ children, className, delay = 0, as = "div" }: RevealPro
   const Tag = as as "div";
   return (
     <Tag
-      ref={ref as React.Ref<HTMLDivElement>}
+      ref={ref as Ref<HTMLDivElement>}
       className={cn("reveal", className)}
       style={{ "--reveal-delay": `${delay}ms` } as CSSProperties}
     >
