@@ -1,24 +1,48 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
+import { About } from "@/components/landing/About";
+import { Features } from "@/components/landing/Features";
+import { FinalCta } from "@/components/landing/FinalCta";
+import { Hero } from "@/components/landing/Hero";
+import { HowItWorks } from "@/components/landing/HowItWorks";
+import { InsightsPreview } from "@/components/landing/InsightsPreview";
+import { SiteFooter } from "@/components/landing/SiteFooter";
+import { SiteHeader } from "@/components/landing/SiteHeader";
+
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "AI CFO — Clear finances for small businesses" },
+      {
+        name: "description",
+        content:
+          "AI CFO reads your invoices and expenses, organizes your numbers, and explains them in plain language. In Arabic and English.",
+      },
+      { property: "og:title", content: "AI CFO — Clear finances for small businesses" },
+      {
+        property: "og:description",
+        content: "Invoice processing, expense tracking, financial insights, and automated reports for small businesses.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div id="top" className="flex min-h-screen flex-col overflow-x-clip">
+      <SiteHeader />
+      <main className="flex-1">
+        <Hero />
+        <Features />
+        <HowItWorks />
+        <InsightsPreview />
+        <About />
+        <FinalCta />
+      </main>
+      <SiteFooter />
     </div>
   );
 }

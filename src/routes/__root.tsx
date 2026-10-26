@@ -12,6 +12,8 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { Toaster } from "@/components/ui/sonner";
+import { I18nProvider, useI18n } from "@/lib/i18n/I18nProvider";
 
 function NotFoundComponent() {
   return (
@@ -78,16 +80,27 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "AI CFO — Clear finances for small businesses" },
+      {
+        name: "description",
+        content: "AI CFO helps small businesses understand their finances with AI-powered insights.",
+      },
+      { property: "og:title", content: "AI CFO" },
+      {
+        property: "og:description",
+        content: "AI CFO helps small businesses understand their finances with AI-powered insights.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
+      { name: "theme-color", content: "#F7F8FA" },
     ],
     links: [
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Manrope:wght@400..800&display=swap",
+      },
       {
         rel: "stylesheet",
         href: appCss,
@@ -103,7 +116,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    // lang/dir are updated on the client by I18nProvider when the language changes.
+    <html lang="en" dir="ltr" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
@@ -115,13 +129,21 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+function LocalizedToaster() {
+  const { dir } = useI18n();
+  return <Toaster position={dir === "rtl" ? "bottom-left" : "bottom-right"} dir={dir} />;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <I18nProvider>
+        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        <Outlet />
+        <LocalizedToaster />
+      </I18nProvider>
     </QueryClientProvider>
   );
 }
