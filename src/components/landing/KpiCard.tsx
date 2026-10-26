@@ -43,7 +43,7 @@ export function KpiCard({ label, value, delta, goodWhenUp, spark, caption }: Kpi
           preserveAspectRatio="none"
         >
           <path
-            d={smoothPath([...spark], 64, 20, max + range * 0.1, min - range * 0.1)}
+            d={smoothPath(spark, { width: 64, height: 20, max: max + range * 0.1, min: min - range * 0.1 })}
             fill="none"
             strokeWidth="2"
             strokeLinecap="round"

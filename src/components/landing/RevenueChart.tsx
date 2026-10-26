@@ -7,6 +7,8 @@ const W = 600;
 const H = 200;
 const MAX = 55000;
 const TICKS = [50000, 37500, 25000, 12500, 0];
+// Points sit at the centre of each of the 6 month columns below the chart.
+const OPTS = { width: W, height: H, max: MAX, padX: W / 12 };
 
 export function RevenueChart() {
   const { t } = useI18n();
@@ -30,17 +32,19 @@ export function RevenueChart() {
 
       <div className="flex gap-2 sm:gap-3">
         {/* Y axis */}
-        <div className="flex h-36 flex-col justify-between pb-0 text-[0.65rem] text-muted-foreground sm:h-48 sm:text-xs" aria-hidden="true">
+        <div
+          className="flex h-36 shrink-0 flex-col justify-between text-[0.65rem] text-muted-foreground sm:h-48 sm:text-xs"
+          aria-hidden="true"
+        >
           {TICKS.map((tick) => (
-            <span key={tick} className="num -translate-y-1/2 first:translate-y-0 last:translate-y-0 leading-none">
+            <span key={tick} className="num leading-none">
               {tick === 0 ? "$0" : `$${tick / 1000}k`}
             </span>
           ))}
         </div>
 
         <div className="relative min-w-0 flex-1">
-          {/* grid lines */}
-          <div className="absolute inset-0 flex h-36 flex-col justify-between sm:h-48" aria-hidden="true">
+          <div className="absolute inset-x-0 top-0 flex h-36 flex-col justify-between sm:h-48" aria-hidden="true">
             {TICKS.map((tick) => (
               <span key={tick} className="h-px w-full bg-border" />
             ))}
@@ -51,7 +55,7 @@ export function RevenueChart() {
             preserveAspectRatio="none"
             role="img"
             aria-label={t.preview.chartTitle}
-            className="relative h-36 w-full animate-clip-reveal overflow-visible sm:h-48 rtl:-scale-x-100"
+            className="relative h-36 w-full animate-clip-reveal sm:h-48 rtl:-scale-x-100"
           >
             <defs>
               <linearGradient id="rev-fill" x1="0" x2="0" y1="0" y2="1">
@@ -63,10 +67,10 @@ export function RevenueChart() {
                 <stop offset="100%" stopColor="var(--champagne)" stopOpacity="0" />
               </linearGradient>
             </defs>
-            <path d={areaPath(revenue, W, H, MAX)} fill="url(#rev-fill)" />
-            <path d={areaPath(expenses, W, H, MAX)} fill="url(#exp-fill)" />
+            <path d={areaPath(revenue, OPTS)} fill="url(#rev-fill)" />
+            <path d={areaPath(expenses, OPTS)} fill="url(#exp-fill)" />
             <path
-              d={smoothPath(expenses, W, H, MAX)}
+              d={smoothPath(expenses, OPTS)}
               fill="none"
               stroke="var(--taupe)"
               strokeWidth="2.25"
@@ -74,7 +78,7 @@ export function RevenueChart() {
               vectorEffect="non-scaling-stroke"
             />
             <path
-              d={smoothPath(revenue, W, H, MAX)}
+              d={smoothPath(revenue, OPTS)}
               fill="none"
               stroke="var(--navy)"
               strokeWidth="2.75"
@@ -83,10 +87,10 @@ export function RevenueChart() {
             />
           </svg>
 
-          {/* X axis — flex follows the document direction, matching the mirrored chart */}
-          <div className="mt-2 flex justify-between text-[0.65rem] text-muted-foreground sm:text-xs" aria-hidden="true">
+          {/* X axis: the grid follows document direction, matching the mirrored chart in RTL */}
+          <div className="mt-2 grid grid-cols-6 text-center text-[0.6rem] text-muted-foreground sm:text-xs" aria-hidden="true">
             {t.preview.months.map((m) => (
-              <span key={m} className="w-0 whitespace-nowrap text-center first:text-start last:text-end [&:not(:first-child):not(:last-child)]:flex [&:not(:first-child):not(:last-child)]:justify-center">
+              <span key={m} className="truncate">
                 {m}
               </span>
             ))}
