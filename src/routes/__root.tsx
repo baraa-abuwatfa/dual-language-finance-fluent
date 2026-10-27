@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { I18nProvider, useI18n } from "@/lib/i18n/I18nProvider";
+import { AuthProvider } from "@/lib/auth/AuthProvider";
 
 function NotFoundComponent() {
   return (
@@ -140,9 +141,11 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <I18nProvider>
+        <AuthProvider>
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
         <LocalizedToaster />
+        </AuthProvider>
       </I18nProvider>
     </QueryClientProvider>
   );

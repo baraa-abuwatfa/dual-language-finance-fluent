@@ -30,4 +30,5 @@ Landing page, authentication, financial dashboard, transactions, CSV import, acc
 ## Current status
 - Frontend: Phase 1 landing page done (EN/AR, RTL/LTR, responsive). Frontend work continues.
 - Percentage formatting in Arabic RTL mobile: verified rendering as "34%".
-- Database foundation done: profiles, companies, company_members (roles owner/admin/finance_manager/viewer) with company-level access rules. Financial tables, auth screens, backend logic and n8n: not started.
+- Database foundation exists in migrations: profiles, companies, company_members (roles owner/admin/finance_manager/viewer) with company-level access rules. This remix currently has no active backend connection; hosted database/authentication settings are unverified.
+- Bilingual authentication screens, single session listener, protected routes and company-state placeholders implemented. Live registration, sign-in, recovery, session restoration and logout verification await reconnection of the existing service. Financial modules and n8n are not started.
