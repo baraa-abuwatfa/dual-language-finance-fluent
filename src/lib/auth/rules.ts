@@ -1,5 +1,10 @@
 import { z } from "zod";
 export type AuthMode = "login" | "signup" | "forgot" | "reset";
+export function authPageDestination(mode: AuthMode, ready: boolean, signedIn: boolean, recovery: boolean, busy: boolean) {
+  if (!ready || !signedIn || mode === "reset") return null;
+  if (recovery) return "/reset-password";
+  return busy ? null : "/dashboard";
+}
 const email = z.string().trim().min(1, "required").max(255, "tooLong").email("invalidEmail");
 const password = z.string().min(1, "required").max(128, "tooLong");
 const strongPassword = password.min(8, "weakPassword").regex(/[a-z]/, "weakPassword").regex(/[A-Z]/, "weakPassword").regex(/[0-9]/, "weakPassword");
@@ -29,5 +34,5 @@ export function companyDestination(members: { status: string }[]) {
   return active.length === 0 ? "/company-setup" : active.length > 1 ? "/select-company" : "/workspace";
 }
 export function safeReturnPath(value: unknown): string | undefined {
-  return typeof value === "string" && ["/workspace", "/company-setup", "/select-company"].includes(value) ? value : undefined;
+  return typeof value === "string" && ["/dashboard", "/workspace", "/company-setup", "/select-company"].includes(value) ? value : undefined;
 }

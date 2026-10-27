@@ -1,7 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { companyDestination, formSchema, safeReturnPath, authErrorKey } from "./rules";
+import { authPageDestination, companyDestination, formSchema, safeReturnPath, authErrorKey } from "./rules";
 const values = { name: "Test User", email: "test@example.com", password: "ValidPass8", confirm: "ValidPass8" };
 describe("Authentication rules", () => {
+  it.each(["login", "signup"] as const)("redirects authenticated %s to Dashboard", (mode) => expect(authPageDestination(mode, true, true, false, false)).toBe("/dashboard"));
+  it("never redirects before session restoration", () => expect(authPageDestination("login", false, true, false, false)).toBeNull());
+  it("keeps signed-out auth pages accessible", () => expect(authPageDestination("signup", true, false, false, false)).toBeNull());
+  it("waits for an ongoing auth submission", () => expect(authPageDestination("login", true, true, false, true)).toBeNull());
+  it("preserves recovery sessions", () => expect(authPageDestination("login", true, true, true, false)).toBe("/reset-password"));
+  it("does not redirect away from password reset", () => expect(authPageDestination("reset", true, true, true, false)).toBeNull());
+  it("allows Dashboard as a protected return path", () => expect(safeReturnPath("/dashboard")).toBe("/dashboard"));
   it("rejects missing required full name", () => expect(formSchema("signup").safeParse({ ...values, name: " " }).success).toBe(false));
   it("rejects invalid email", () => expect(formSchema("login").safeParse({ ...values, email: "wrong" }).success).toBe(false));
   it("does not apply new password strength rules to existing login credentials", () => expect(formSchema("login").safeParse({ ...values, password: "old" }).success).toBe(true));

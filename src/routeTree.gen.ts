@@ -16,6 +16,7 @@ import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as AuthenticatedCompanySetupRouteImport } from './routes/_authenticated/company-setup'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedSelectCompanyRouteImport } from './routes/_authenticated/select-company'
 import { Route as AuthenticatedWorkspaceRouteImport } from './routes/_authenticated/workspace'
 
@@ -54,6 +55,11 @@ const AuthenticatedCompanySetupRoute =
     path: '/company-setup',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSelectCompanyRoute =
   AuthenticatedSelectCompanyRouteImport.update({
     id: '/select-company',
@@ -73,6 +79,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/company-setup': typeof AuthenticatedCompanySetupRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/select-company': typeof AuthenticatedSelectCompanyRoute
   '/workspace': typeof AuthenticatedWorkspaceRoute
 }
@@ -83,6 +90,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/company-setup': typeof AuthenticatedCompanySetupRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/select-company': typeof AuthenticatedSelectCompanyRoute
   '/workspace': typeof AuthenticatedWorkspaceRoute
 }
@@ -95,6 +103,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/_authenticated/company-setup': typeof AuthenticatedCompanySetupRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/select-company': typeof AuthenticatedSelectCompanyRoute
   '/_authenticated/workspace': typeof AuthenticatedWorkspaceRoute
 }
@@ -107,6 +116,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/company-setup'
+    | '/dashboard'
     | '/select-company'
     | '/workspace'
   fileRoutesByTo: FileRoutesByTo
@@ -117,6 +127,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/company-setup'
+    | '/dashboard'
     | '/select-company'
     | '/workspace'
   id:
@@ -128,6 +139,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/_authenticated/company-setup'
+    | '/_authenticated/dashboard'
     | '/_authenticated/select-company'
     | '/_authenticated/workspace'
   fileRoutesById: FileRoutesById
@@ -192,6 +204,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCompanySetupRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/select-company': {
       id: '/_authenticated/select-company'
       path: '/select-company'
@@ -211,12 +230,14 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedCompanySetupRoute: typeof AuthenticatedCompanySetupRoute
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedSelectCompanyRoute: typeof AuthenticatedSelectCompanyRoute
   AuthenticatedWorkspaceRoute: typeof AuthenticatedWorkspaceRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCompanySetupRoute: AuthenticatedCompanySetupRoute,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedSelectCompanyRoute: AuthenticatedSelectCompanyRoute,
   AuthenticatedWorkspaceRoute: AuthenticatedWorkspaceRoute,
 }

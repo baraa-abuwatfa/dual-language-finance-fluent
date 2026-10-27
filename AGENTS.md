@@ -16,4 +16,4 @@
 ## Authentication
 - Reuse the generated Supabase client, one root AuthProvider listener, and the client-only `_authenticated` route gate; private membership reads use authenticated server functions and the bearer middleware. Why: prevents duplicate sessions, SSR login loops, and unprotected private reads.
 - Authentication copy extends the existing locale context through typed bilingual auth dictionaries; shared forms and shells serve all public auth pages. Why: keeps languages and validation consistent without duplicating screens.
-- Initial company navigation counts only active memberships; none routes to setup, one to workspace, and multiple to an unselected-company placeholder. Why: never invents memberships or arbitrarily selects a tenant.
+- Dashboard is the authenticated entry and reuses existing company-status placeholders; only active memberships determine its setup, single-company or unselected-company state, and /workspace redirects there. Why: provides one session-aware entry without inventing memberships or choosing a tenant.

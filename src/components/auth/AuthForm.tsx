@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { useI18n } from "@/lib/i18n/I18nProvider";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { authCopy, type AuthMessage } from "@/lib/auth/copy";
-import { authErrorKey, formSchema, type AuthMode } from "@/lib/auth/rules";
+import { authErrorKey, authPageDestination, formSchema, type AuthMode } from "@/lib/auth/rules";
 import { AuthShell } from "./AuthShell";
 import { authConfigured } from "@/lib/auth/config";
 
@@ -21,8 +21,8 @@ export function AuthForm({ mode, resetSuccess = false }: { mode: AuthMode; reset
   const [failed, setFailed] = useState(false); const [busy, setBusy] = useState(false);
   const [recoveryHint, setRecoveryHint] = useState(false);
   useEffect(() => { setRecoveryHint(new URLSearchParams(window.location.hash.slice(1)).get("type") === "recovery"); }, []);
-  useEffect(() => { if (ready && user && mode !== "reset" && !recovery && !busy) void navigate({ to: "/workspace", replace: true }); }, [user, ready, recovery, busy, mode, navigate]);
-  useEffect(() => { if (ready && user && recovery && mode !== "reset") void navigate({ to: "/reset-password", replace: true }); }, [ready, user, recovery, mode, navigate]);
+  const destination = authPageDestination(mode, ready, Boolean(user), recovery, busy);
+  useEffect(() => { if (destination) void navigate({ to: destination, replace: true }); }, [destination, navigate]);
   async function submit(event: FormEvent) {
     event.preventDefault(); if (busy) return;
     const result = formSchema(mode).safeParse(values);
@@ -31,11 +31,11 @@ export function AuthForm({ mode, resetSuccess = false }: { mode: AuthMode; reset
     try {
       if (mode === "login") {
         const { error } = await supabase.auth.signInWithPassword({ email: result.data.email, password: result.data.password }); if (error) throw error;
-        await navigate({ to: "/workspace", replace: true });
+        await navigate({ to: "/dashboard", replace: true });
       } else if (mode === "signup") {
         const { data, error } = await supabase.auth.signUp({ email: result.data.email, password: result.data.password, options: { data: { full_name: result.data.name }, emailRedirectTo: window.location.origin } }); if (error) throw error;
         setValues((current) => ({ ...current, password: "", confirm: "" }));
-        if (data.session) await navigate({ to: "/workspace", replace: true }); else setMessage("confirmEmail");
+        if (data.session) await navigate({ to: "/dashboard", replace: true }); else setMessage("confirmEmail");
       } else if (mode === "forgot") {
         const { error } = await supabase.auth.resetPasswordForEmail(result.data.email, { redirectTo: `${window.location.origin}/reset-password` }); if (error) throw error; setMessage("recoverySent");
       } else {
@@ -52,6 +52,7 @@ export function AuthForm({ mode, resetSuccess = false }: { mode: AuthMode; reset
   const fields: (keyof typeof values)[] = mode === "signup" ? ["name", "email", "password", "confirm"] : mode === "reset" ? ["password", "confirm"] : mode === "forgot" ? ["email"] : ["email", "password"];
   const invalidReset = mode === "reset" && ready && (!user || !(recovery || recoveryHint));
   const action = mode === "signup" ? t.signUp : mode === "forgot" ? t.sendReset : mode === "reset" ? t.savePassword : t.signIn;
+  if ((mode === "login" || mode === "signup") && (!ready || destination)) return <AuthShell title={t[mode]} description={t[`${mode}Description`]}><p role="status" className="flex items-center gap-2 text-sm text-muted-foreground"><LoaderCircle className="size-4 motion-safe:animate-spin" aria-hidden="true" />{t.processing}</p></AuthShell>;
   return <AuthShell title={t[mode]} description={t[`${mode}Description`]}>
     {!authConfigured && <p role="alert" className="mb-6 rounded-md border border-negative/30 bg-negative-soft p-4 text-sm leading-6 text-foreground">{locale === "ar" ? "تسجيل الدخول غير متاح حاليًا. يلزم إعادة ربط خدمة الحسابات الحالية بهذا المشروع." : "Account access is currently unavailable. The existing account service needs to be reconnected to this project."}</p>}
     {message && <p role={failed ? "alert" : "status"} className={`mb-6 rounded-md border p-4 text-sm leading-6 ${failed ? "border-negative/30 bg-negative-soft text-negative" : "border-positive/30 bg-positive-soft text-foreground"}`}>{t[message]}</p>}
