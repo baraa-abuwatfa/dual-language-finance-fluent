@@ -113,15 +113,6 @@ export type Database = {
         Args: { _name: string; _primary_currency: string }
         Returns: string
       }
-      has_company_role: {
-        Args: {
-          _company_id: string
-          _roles: Database["public"]["Enums"]["company_role"][]
-        }
-        Returns: boolean
-      }
-      is_company_member: { Args: { _company_id: string }; Returns: boolean }
-      shares_company_with: { Args: { _other_user: string }; Returns: boolean }
     }
     Enums: {
       company_role: "owner" | "admin" | "finance_manager" | "viewer"
