@@ -3,6 +3,7 @@ import type { User } from "@supabase/supabase-js";
 import { useRouter } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { authConfigured } from "./config";
 
 const AuthContext = createContext<{ user: User | null; ready: boolean; recovery: boolean; signOut: () => Promise<void> } | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -12,6 +13,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const queryClient = useQueryClient();
   useEffect(() => {
+    if (!authConfigured) { setReady(true); return; }
     let live = true;
     let changed = false;
     setRecovery(window.sessionStorage.getItem("aicfo.recovery") === "true");

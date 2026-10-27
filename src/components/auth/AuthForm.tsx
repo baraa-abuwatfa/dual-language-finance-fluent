@@ -9,6 +9,7 @@ import { useAuth } from "@/lib/auth/AuthProvider";
 import { authCopy, type AuthMessage } from "@/lib/auth/copy";
 import { authErrorKey, formSchema, type AuthMode } from "@/lib/auth/rules";
 import { AuthShell } from "./AuthShell";
+import { authConfigured } from "@/lib/auth/config";
 
 export function AuthForm({ mode, resetSuccess = false }: { mode: AuthMode; resetSuccess?: boolean }) {
   const { locale } = useI18n(); const t = authCopy[locale];
@@ -52,6 +53,7 @@ export function AuthForm({ mode, resetSuccess = false }: { mode: AuthMode; reset
   const invalidReset = mode === "reset" && ready && (!user || !(recovery || recoveryHint));
   const action = mode === "signup" ? t.signUp : mode === "forgot" ? t.sendReset : mode === "reset" ? t.savePassword : t.signIn;
   return <AuthShell title={t[mode]} description={t[`${mode}Description`]}>
+    {!authConfigured && <p role="alert" className="mb-6 rounded-md border border-negative/30 bg-negative-soft p-4 text-sm leading-6 text-foreground">{locale === "ar" ? "تسجيل الدخول غير متاح حاليًا. يلزم إعادة ربط خدمة الحسابات الحالية بهذا المشروع." : "Account access is currently unavailable. The existing account service needs to be reconnected to this project."}</p>}
     {message && <p role={failed ? "alert" : "status"} className={`mb-6 rounded-md border p-4 text-sm leading-6 ${failed ? "border-negative/30 bg-negative-soft text-negative" : "border-positive/30 bg-positive-soft text-foreground"}`}>{t[message]}</p>}
     {invalidReset ? <div><p role="alert" className="mb-5 text-sm text-negative">{t.invalidRecovery}</p><Button asChild variant="subtle"><Link to="/forgot-password">{t.sendReset}</Link></Button></div> : <form onSubmit={submit} noValidate className="space-y-5" aria-busy={busy}>
       {fields.map((field) => { const secret = field === "password" || field === "confirm"; const label = field === "password" && mode === "reset" ? t.newPassword : t[field]; return <div key={field}>
@@ -63,7 +65,7 @@ export function AuthForm({ mode, resetSuccess = false }: { mode: AuthMode; reset
         {field === "password" && mode !== "login" && <p id="password-requirements" className="mt-2 text-xs leading-5 text-muted-foreground">{t.requirements}</p>}
       </div>; })}
       {mode === "login" && <div className="text-end"><Link to="/forgot-password" className="text-sm text-steel underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-ring">{t.forgotLink}</Link></div>}
-      <Button type="submit" size="lg" disabled={busy || (mode === "reset" && !ready)} className="h-12 w-full bg-steel text-on-navy hover:bg-steel/90">{busy && <LoaderCircle className="animate-spin" />}{busy ? t.processing : action}</Button>
+      <Button type="submit" size="lg" disabled={busy || !authConfigured || (mode === "reset" && !ready)} className="h-12 w-full bg-steel text-on-navy hover:bg-steel/90">{busy && <LoaderCircle className="animate-spin" />}{busy ? t.processing : action}</Button>
     </form>}
     <div className="mt-6 text-center text-sm text-muted-foreground">{mode === "login" ? <>{t.noAccount} <Link to="/signup" className="font-semibold text-steel hover:underline">{t.signUp}</Link></> : mode === "signup" ? <>{t.haveAccount} <Link to="/auth" className="font-semibold text-steel hover:underline">{t.signIn}</Link></> : <Link to="/auth" className="font-semibold text-steel hover:underline">{t.loginLink}</Link>}</div>
   </AuthShell>;
