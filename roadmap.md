@@ -1,4 +1,5 @@
 # Authentication
+- [x] Connect all landing Get Started actions to signup when signed out and the app when signed in; reuse existing real Auth flows and preserve design.
 - [x] Add bilingual authentication forms, session handling, and protected placeholders.
 - [x] Verify validation rules and public navigation; report unavailable checks.
 - [x] Verify existing Supabase connection, Auth settings, hosted tables/RLS and signed-out create_company RPC protection without database changes.
