@@ -7,7 +7,6 @@ import { useI18n } from "@/lib/i18n/I18nProvider";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { authCopy } from "@/lib/auth/copy";
-import { useNavigate } from "@tanstack/react-router";
 
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useComingSoon } from "./use-coming-soon";
@@ -21,9 +20,8 @@ export const SECTION_IDS = {
 export function SiteHeader() {
   const { t, locale } = useI18n();
   const { user } = useAuth();
-  const navigate = useNavigate();
-  const login = () => user ? navigate({ to: "/workspace" }) : comingSoon.login();
   const comingSoon = useComingSoon();
+  const login = comingSoon.login;
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 

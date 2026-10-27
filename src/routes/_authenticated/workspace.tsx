@@ -1,6 +1,3 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { WorkspacePlaceholder } from "@/components/auth/WorkspacePlaceholder";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { authHead } from "@/lib/auth/head";
-import { loadCompanyAccess } from "@/lib/auth/access";
-export const Route = createFileRoute("/_authenticated/workspace")({ head: () => authHead("Your workspace", "Your secure AI CFO workspace."), loader: () => loadCompanyAccess("/workspace"), component: Workspace });
-function Workspace() { const data = Route.useLoaderData(); return <WorkspacePlaceholder kind="workspace" companyName={data.companyName} error={!data.destination} />; }
+export const Route = createFileRoute("/_authenticated/workspace")({ head: () => authHead("Your workspace", "Continue to your secure AI CFO dashboard."), beforeLoad: () => { throw redirect({ to: "/dashboard", replace: true }); } });
