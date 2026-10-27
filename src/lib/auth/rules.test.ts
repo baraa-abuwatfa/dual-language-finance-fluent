@@ -21,3 +21,9 @@ describe("Authentication rules", () => {
   it("rejects external or arbitrary login destinations", () => { expect(safeReturnPath("https://evil.example")).toBeUndefined(); expect(safeReturnPath("//evil.example")).toBeUndefined(); expect(safeReturnPath("/workspace")).toBe("/workspace"); });
   it("maps unexpected service errors to safe messages", () => expect(authErrorKey({ code: "internal_private_detail" })).toBe("generic"));
 });
+import { companySchema as cs } from "./rules";
+describe("company setup validation", () => {
+  it("requires a company name", () => { expect(cs.safeParse({ name: "  ", currency: "USD" }).success).toBe(false); });
+  it("rejects unsupported currencies", () => { expect(cs.safeParse({ name: "Acme", currency: "XYZ" }).success).toBe(false); });
+  it("accepts a valid company", () => { expect(cs.safeParse({ name: "Acme", currency: "SAR" }).success).toBe(true); });
+});
