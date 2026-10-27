@@ -14,16 +14,118 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      companies: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          primary_currency: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          primary_currency: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          primary_currency?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      company_members: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["company_role"]
+          status: Database["public"]["Enums"]["membership_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["company_role"]
+          status?: Database["public"]["Enums"]["membership_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["company_role"]
+          status?: Database["public"]["Enums"]["membership_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_members_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          full_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          full_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_company: {
+        Args: { _name: string; _primary_currency: string }
+        Returns: string
+      }
+      has_company_role: {
+        Args: {
+          _company_id: string
+          _roles: Database["public"]["Enums"]["company_role"][]
+        }
+        Returns: boolean
+      }
+      is_company_member: { Args: { _company_id: string }; Returns: boolean }
+      shares_company_with: { Args: { _other_user: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      company_role: "owner" | "admin" | "finance_manager" | "viewer"
+      membership_status: "invited" | "active" | "suspended"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +252,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      company_role: ["owner", "admin", "finance_manager", "viewer"],
+      membership_status: ["invited", "active", "suspended"],
+    },
   },
 } as const
