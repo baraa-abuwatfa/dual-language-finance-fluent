@@ -36,3 +36,8 @@ export function companyDestination(members: { status: string }[]) {
 export function safeReturnPath(value: unknown): string | undefined {
   return typeof value === "string" && ["/dashboard", "/workspace", "/company-setup", "/select-company"].includes(value) ? value : undefined;
 }
+export const CURRENCIES = ["USD", "EUR", "GBP", "SAR", "AED", "ILS", "JOD", "EGP", "KWD", "QAR"] as const;
+export const companySchema = z.object({
+  name: z.string().trim().min(2, "required").max(120, "tooLong"),
+  currency: z.enum(CURRENCIES),
+});
