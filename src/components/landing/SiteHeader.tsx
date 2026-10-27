@@ -5,6 +5,9 @@ import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n/I18nProvider";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth/AuthProvider";
+import { authCopy } from "@/lib/auth/copy";
+import { useNavigate } from "@tanstack/react-router";
 
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useComingSoon } from "./use-coming-soon";
@@ -16,7 +19,10 @@ export const SECTION_IDS = {
 } as const;
 
 export function SiteHeader() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const login = () => user ? navigate({ to: "/workspace" }) : comingSoon.login();
   const comingSoon = useComingSoon();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -73,8 +79,8 @@ export function SiteHeader() {
 
         <div className="flex shrink-0 items-center gap-2">
           <LanguageSwitcher compact className="hidden min-[360px]:inline-flex" />
-          <Button variant="nav" className="hidden lg:inline-flex" onClick={comingSoon.login}>
-            {t.nav.login}
+          <Button variant="nav" className="hidden lg:inline-flex" onClick={login}>
+            {user ? authCopy[locale].signedIn : t.nav.login}
           </Button>
           <Button variant="hero" className="hidden sm:inline-flex" onClick={comingSoon.signup}>
             {t.nav.getStarted}
@@ -120,10 +126,10 @@ export function SiteHeader() {
                 size="lg"
                 onClick={() => {
                   setOpen(false);
-                  comingSoon.login();
+                  login();
                 }}
               >
-                {t.nav.login}
+                {user ? authCopy[locale].signedIn : t.nav.login}
               </Button>
               <Button
                 variant="hero"
