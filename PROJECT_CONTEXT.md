@@ -30,4 +30,4 @@ Landing page, authentication, financial dashboard, transactions, CSV import, acc
 ## Current status
 - Frontend: Phase 1 landing page done (EN/AR, RTL/LTR, responsive). Frontend work continues.
 - Percentage formatting in Arabic RTL mobile: verified rendering as "34%".
-- Database, backend, and n8n implementation: not started.
+- Database foundation done: profiles, companies, company_members (roles owner/admin/finance_manager/viewer) with company-level access rules. Financial tables, auth screens, backend logic and n8n: not started.
