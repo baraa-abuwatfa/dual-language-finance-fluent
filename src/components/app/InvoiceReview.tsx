@@ -45,16 +45,16 @@ export function InvoiceReview({ invoice, history, onClose }: { invoice: Invoice;
     onSuccess: async (_, v) => {
       await refresh();
       if (v.approve) { await qc.invalidateQueries({ queryKey: ["transactions", company.id] }); onClose(); }
+      else setSaved(true);
       setError(null);
     },
-    onError: async (e) => { setError(invoiceError(e, t)); await refresh(); },
+    onError: async (e) => { setSaved(false); setError(invoiceError(e, t)); await refresh(); },
   });
   const busy = save.isPending || processing.isPending;
   function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const parsed = reviewSchema.safeParse({ ...draft, due_date: draft.due_date || null,
-      subtotal: draft.subtotal === "" ? NaN : Number(draft.subtotal), tax_amount: draft.tax_amount === "" ? NaN : Number(draft.tax_amount), total_amount: draft.total_amount === "" ? NaN : Number(draft.total_amount) });
-    if (!parsed.success) { setError(t.invalid); return; }
+    const parsed = parseReview(draft);
+    if (!parsed.success) { setSaved(false); setError(t.invalid); return; }
     if (history.some((i) => i.id !== invoice.id && i.supplier_name && i.invoice_number && duplicateIdentity(i.supplier_name, i.invoice_number) === duplicateIdentity(parsed.data.supplier_name, parsed.data.invoice_number))) { setError(t.duplicate); return; }
     const approve = (e.nativeEvent as SubmitEvent).submitter?.getAttribute("value") === "approve";
     if (approve && parsed.data.currency !== company.currency.toUpperCase()) { setError(t.currencyMismatch); return; }
