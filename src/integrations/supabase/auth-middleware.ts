@@ -34,8 +34,10 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
 export const requireSupabaseAuth = createMiddleware({ type: 'function' }).server(
   async ({ next }) => {
     
-    const SUPABASE_URL = process.env['SUPABASE_URL'];
-    const SUPABASE_PUBLISHABLE_KEY = process.env['SUPABASE_PUBLISHABLE_KEY'];
+    // Fallback to the same public project URL/publishable key the browser client uses,
+    // because server env vars were not carried over when this project was transferred.
+    const SUPABASE_URL = process.env['SUPABASE_URL'] || "https://tpjqwnfxwkhsdzpkylak.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY = process.env['SUPABASE_PUBLISHABLE_KEY'] || "sb_publishable_JZh0A4MsCRfn1jnMnxqe_Q_53FEOtAm";
 
     if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
       const missing = [
