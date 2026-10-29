@@ -11,7 +11,8 @@ describe("App routing", () => {
     const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
     const matches = router.matchRoutes("/dashboard");
     expect(matches.map((match) => match.routeId)).toContain("/_authenticated");
-    expect(matches.at(-1)?.routeId).toBe("/_authenticated/dashboard");
+    expect(matches.map((match) => match.routeId)).toContain("/_authenticated/_company");
+    expect(matches.at(-1)?.routeId).toBe("/_authenticated/_company/dashboard");
   });
   it("matches a page for / instead of falling back to not found", () => {
     const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
