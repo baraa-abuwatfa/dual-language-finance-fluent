@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { ExternalLink, FileText, LoaderCircle, Upload, Search } from "lucide-react";
+import { ExternalLink, FileText, LoaderCircle, Upload, Search, Trash2 } from "lucide-react";
 import { EmptyState, PageError, PageHeader, PageNotFound, Panel, selectClass } from "@/components/app/ui";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,6 +24,8 @@ export const Route = createFileRoute("/_authenticated/_company/invoices")({
 
 function Invoices() {
   const { locale } = useAppCopy(); const t = invoiceCopy[locale];
+  const deleteText = locale === "ar" ? "حذف ملف الفاتورة؟ لا يمكن التراجع عن ذلك." : "Delete this invoice file? This cannot be undone.";
+  const deleteLabel = locale === "ar" ? "حذف" : "Delete";
   const { company } = useCompany();
   const qc = useQueryClient();
   const input = useRef<HTMLInputElement>(null);
@@ -47,6 +49,15 @@ function Invoices() {
     },
     onSettled: () => { if (input.current) input.current.value = ""; },
     onSuccess: refresh,
+  });
+  const remove = useMutation({
+    mutationFn: async (invoice: { id: string; file_path: string }) => {
+      const { error } = await supabase.from("invoices").delete().eq("id", invoice.id);
+      if (error) throw error;
+      const { error: storageError } = await supabase.storage.from("invoices").remove([invoice.file_path]);
+      if (storageError) throw storageError;
+    },
+    onSettled: refresh,
   });
   async function openFile(path: string) {
     const tab = window.open("about:blank", "_blank");
@@ -72,12 +83,14 @@ function Invoices() {
     <Panel>
       <div className="mb-4 flex flex-wrap gap-3"><div className="relative min-w-0 flex-1"><Search className="pointer-events-none absolute start-3 top-3 size-4 text-muted-foreground" /><Input className="ps-9" aria-label={t.search} placeholder={t.search} value={search} onChange={(e) => setSearch(e.target.value)} /></div><select className={selectClass + " max-w-full"} aria-label={t.all} value={status} onChange={(e) => setStatus(e.target.value)}><option value="all">{t.all}</option>{invoiceStatuses.map((s) => <option key={s} value={s}>{t.status[s]}</option>)}</select></div>
       {openError && <p role="alert" className="text-sm text-negative">{t.failed}</p>}
+      {remove.isError && <p role="alert" className="text-sm text-negative">{t.failed}</p>}
       {invoices.length === 0 ? <EmptyState text={t.empty} icon={<FileText />} /> : filtered.length === 0 ? <EmptyState text={t.noMatch} /> : <ul className="divide-y divide-border">
         {filtered.map((inv) => <li key={inv.id} className="flex flex-wrap items-center gap-3 py-3">
           <FileText className="size-5 shrink-0 text-steel" aria-hidden="true" />
            <div className="min-w-0 flex-1"><p className="truncate text-sm font-medium text-navy" dir="auto">{inv.supplier_name || inv.file_name}</p><p className="num text-xs text-muted-foreground">{inv.invoice_number ? `${inv.invoice_number} · ` : ""}{(inv.file_size / 1024).toFixed(0)} KB · {inv.created_at.slice(0, 10)}</p><p className={`mt-1 text-xs font-semibold ${inv.status === "approved" ? "text-positive" : inv.status === "failed" ? "text-negative" : "text-steel"}`}>{t.status[inv.status]}</p></div>
           <Button variant="ghost" size="icon" aria-label={`${t.open}: ${inv.file_name}`} onClick={() => void openFile(inv.file_path)}><ExternalLink /></Button>
            <Button variant="subtle" aria-label={`${t.review}: ${inv.file_name}`} onClick={() => setSelected(inv.id)}><FileText />{t.review}</Button>
+           {editable && inv.status !== "approved" && inv.status !== "processing" && <Button variant="ghost" size="icon" aria-label={`${deleteLabel}: ${inv.file_name}`} disabled={remove.isPending} onClick={() => { if (window.confirm(deleteText)) remove.mutate(inv); }}><Trash2 className="text-negative" /></Button>}
         </li>)}
       </ul>}
     </Panel>
