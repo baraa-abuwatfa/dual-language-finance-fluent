@@ -27,7 +27,7 @@ function Dashboard() {
   const fmt = (v: number) => formatAmount(v, company.currency);
   const has = txs.length > 0;
   const cap = has ? t.thisMonth : t.noData;
-  const tone = (v: number) => (!has || v === 0 ? "neutral" : v > 0 ? "positive" : "negative") as const;
+  const tone = (v: number): "neutral" | "positive" | "negative" => (!has || v === 0 ? "neutral" : v > 0 ? "positive" : "negative");
   const series = monthlySeries(txs, lastMonths(month, 6));
   const cats = categoryBreakdown(txs.filter((x) => monthKey(x.occurred_on) >= series[0]!.month));
 

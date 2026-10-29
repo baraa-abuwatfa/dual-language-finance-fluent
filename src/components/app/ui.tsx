@@ -7,7 +7,7 @@ import { useI18n } from "@/lib/i18n/I18nProvider";
 import { dashCopy } from "@/lib/dashboard/copy";
 import { cn } from "@/lib/utils";
 
-export function PageHeader({ title, description, action }: { title: string; description?: string; action?: ReactNode }) {
+export function PageHeader({ title, description, action }: { title: string; description?: string | undefined; action?: ReactNode }) {
   return <div className="flex flex-wrap items-end justify-between gap-3">
     <div className="min-w-0"><h1 className="font-display text-2xl font-semibold text-navy sm:text-3xl">{title}</h1>{description && <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{description}</p>}</div>
     {action}
