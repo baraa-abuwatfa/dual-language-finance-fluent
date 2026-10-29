@@ -10,7 +10,7 @@ import { useI18n } from "@/lib/i18n/I18nProvider";
 import { invoiceAction, type Invoice } from "@/lib/invoices/data";
 import { invoiceCopy, invoiceError } from "@/lib/invoices/copy";
 import { extractInvoice } from "@/lib/invoices/extraction.functions";
-import { duplicateIdentity, reviewSchema, type Review } from "@/lib/invoices/rules";
+import { duplicateIdentity, parseReview, type Review } from "@/lib/invoices/rules";
 import { canEdit } from "@/lib/finance/queries";
 import { confirmInvoice } from "@/lib/invoices/confirmation";
 
@@ -22,6 +22,7 @@ export function InvoiceReview({ invoice, history, onClose }: { invoice: Invoice;
   const qc = useQueryClient(); const extract = useServerFn(extractInvoice);
   const [draft, setDraft] = useState<Draft>(() => Object.fromEntries(fields.map((f) => [f, invoice[f] == null ? "" : String(invoice[f])])) as Draft);
   const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
   const editable = canEdit(company.role) && invoice.status !== "approved";
   const configured = invoice.processing_ready !== false;
   const refresh = () => qc.invalidateQueries({ queryKey: ["invoices", company.id] });
