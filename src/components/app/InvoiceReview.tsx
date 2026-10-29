@@ -65,18 +65,19 @@ export function InvoiceReview({ invoice, history, onClose }: { invoice: Invoice;
       <DialogHeader><DialogTitle className="text-navy">{t.review}</DialogTitle></DialogHeader>
       <p className="break-all text-sm text-muted-foreground" dir="auto">{invoice.file_name}</p>
       <div className="flex flex-wrap items-center gap-2"><span role="status" className="text-sm font-semibold text-steel">{processing.isPending ? t.status.processing : t.status[invoice.status]}</span>
-        {editable && <Button variant="subtle" disabled={!configured || busy || invoice.status === "processing" || invoice.error_code === "402" || invoice.error_code === "403"} onClick={() => processing.mutate()}><ScanLine />{t.extract}</Button>}
+        {editable && <Button variant="subtle" disabled={!configured || busy || invoice.status === "processing" || invoice.error_code === "402" || invoice.error_code === "403"} onClick={() => { setSaved(false); processing.mutate(); }}><ScanLine />{t.extract}</Button>}
       </div>
       {!configured && <p role="alert" className="text-sm text-negative">{t.setup}</p>}
       {invoice.processing_error && <p role="alert" className="break-words text-sm text-negative">{invoice.error_code === "23505" ? t.duplicate : invoice.processing_error}</p>}
       <form onSubmit={submit} className="space-y-4" aria-busy={busy}>
         <fieldset disabled={!editable || busy} className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2">
           {fields.map((f) => <div key={f} className="min-w-0"><label htmlFor={`inv-${f}`} className="mb-1.5 block text-sm font-semibold text-navy">{t[f]}</label>
-            <Input id={`inv-${f}`} value={draft[f]} onChange={(e) => setDraft((d) => ({ ...d, [f]: e.target.value }))} type={f.endsWith("date") ? "date" : amounts.includes(f) ? "number" : "text"} step={amounts.includes(f) ? "0.01" : undefined} min={amounts.includes(f) ? 0 : undefined} maxLength={f === "currency" ? 3 : f === "supplier_name" ? 200 : f === "invoice_number" ? 100 : 60} dir={f === "supplier_name" || f === "expense_category" ? "auto" : "ltr"} required={f !== "due_date"} />
+            <Input id={`inv-${f}`} value={draft[f]} onChange={(e) => { setSaved(false); setDraft((d) => ({ ...d, [f]: e.target.value })); }} type={f.endsWith("date") ? "date" : amounts.includes(f) ? "number" : "text"} step={amounts.includes(f) ? "0.01" : undefined} min={amounts.includes(f) ? 0 : undefined} maxLength={f === "currency" ? 3 : f === "supplier_name" ? 200 : f === "invoice_number" ? 100 : 60} dir={f === "supplier_name" || f === "expense_category" ? "auto" : "ltr"} required={f !== "due_date"} />
           </div>)}
         </fieldset>
         {invoice.transaction_id && <p className="break-all text-sm text-positive">{t.transaction}: <bdi className="num">{invoice.transaction_id}</bdi></p>}
         {error && <p role="alert" className="break-words text-sm text-negative">{error}</p>}
+        {saved && !error && <p role="status" className="text-sm text-positive">{t.saved}</p>}
         {editable && <><p className="text-sm text-muted-foreground">{t.notice}</p><div className="flex flex-wrap justify-end gap-2">
           <Button type="submit" variant="subtle" value="save" disabled={busy || !configured}>{t.save}</Button>
           <Button type="submit" value="approve" disabled={busy || !configured}>{busy ? <LoaderCircle className="animate-spin" /> : <Check />}{t.approve}</Button>
