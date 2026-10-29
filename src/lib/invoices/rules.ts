@@ -13,6 +13,17 @@ export const reviewSchema = z.object({
   expense_category: z.string().trim().min(1).max(60),
 }).strict().refine((v) => Math.abs(v.subtotal + v.tax_amount - v.total_amount) <= 0.01, "amountMismatch");
 export type Review = z.infer<typeof reviewSchema>;
+export type ReviewDraft = Record<"supplier_name" | "invoice_number" | "invoice_date" | "due_date" | "currency" | "subtotal" | "tax_amount" | "total_amount" | "expense_category", string>;
+export function parseReview(draft: ReviewDraft) {
+  return reviewSchema.safeParse({
+    ...draft,
+    currency: draft.currency.trim().toUpperCase(),
+    due_date: draft.due_date || null,
+    subtotal: draft.subtotal === "" ? NaN : Number(draft.subtotal),
+    tax_amount: draft.tax_amount === "" ? NaN : Number(draft.tax_amount),
+    total_amount: draft.total_amount === "" ? NaN : Number(draft.total_amount),
+  });
+}
 export function duplicateIdentity(supplier: string, number: string) { return [supplier, number].map((s) => s.toLowerCase().replace(/\s+/g, "").trim()).join("|"); }
 export function validateInvoiceFile(type: string, size: number) {
   if (!invoiceTypes.includes(type)) throw new Error("fileType");

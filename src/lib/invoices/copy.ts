@@ -7,6 +7,7 @@ const en = {
   invalid: "Complete the required fields, check the dates, and make sure subtotal plus tax equals total.", currencyMismatch: "Invoice currency must match the company currency. Currency conversion is not configured; no expense was recorded.",
   failed: "The action failed. Please try again.", setup: "Invoice processing needs a database update in the existing account service. Uploads and file history remain available.", fileType: "Only PDF, JPG, JPEG and PNG files are supported.", fileTooLarge: "Choose a non-empty file up to 10 MB.",
   working: "Please wait…", close: "Close", retry: "Try again", readonly: "Your role can view invoices but cannot change them.", transaction: "Linked expense", missingAI: "AI extraction is not configured. You can enter the invoice fields manually.", busy: "This invoice is already processing. Reload its status before starting another extraction.",
+  saved: "Review saved. No expense is recorded until you confirm.",
 };
 type Copy = typeof en;
 const ar: Copy = {
