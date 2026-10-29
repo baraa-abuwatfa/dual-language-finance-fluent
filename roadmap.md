@@ -1,4 +1,9 @@
 # Authentication
+# Invoice processing
+- [ ] Extend existing invoice history, private upload, review, and explicit atomic expense approval.
+- [ ] Apply minimal invoice migration: blocked by transferred external database lacking management access.
+- [ ] Verify signed-in upload/extraction/approval: blocked by unavailable external account session.
+
 - [x] Direct authenticated Login/Signup and landing account actions to Dashboard after session loading; preserve public browsing and recovery. Verified 30 tests and signed-out browser navigation; real signed-in checks remain unavailable for external Supabase.
 - [x] Connect all landing Get Started actions to signup when signed out and the app when signed in; reuse existing real Auth flows and preserve design.
 - [x] Add bilingual authentication forms, session handling, and protected placeholders.
