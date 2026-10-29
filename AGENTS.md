@@ -10,6 +10,8 @@
 <!-- LOVABLE:END -->
 
 ## Database
+- Invoice review extends existing invoices and uses an authenticated atomic approval RPC; invoice and transaction caches share company-scoped invalidation. Why: approval retries cannot create multiple expenses and dashboard totals use recorded transactions only.
+- Pending external-database invoice SQL is documented in docs/invoice-processing-setup.sql, not claimed as an applied migration. Why: this transferred project has no managed database migration access.
 - Multi-company access is enforced in Postgres RLS via `private.*` security-definer helpers keyed on `auth.uid()`; companies are created only through `public.create_company()` so the creator becomes owner atomically. Why: keeps tenant isolation in the database, not app code.
 - New public tables must explicitly REVOKE anon/PUBLIC and grant only needed privileges. Why: this Supabase project's default privileges grant ALL to anon/authenticated.
 

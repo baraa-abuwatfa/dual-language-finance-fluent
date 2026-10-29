@@ -22,6 +22,7 @@ export function InvoiceReview({ invoice, history, onClose }: { invoice: Invoice;
   const [draft, setDraft] = useState<Draft>(() => Object.fromEntries(fields.map((f) => [f, invoice[f] == null ? "" : String(invoice[f])])) as Draft);
   const [error, setError] = useState<string | null>(null);
   const editable = canEdit(company.role) && invoice.status !== "approved";
+  const configured = invoice.processing_ready !== false;
   const refresh = () => qc.invalidateQueries({ queryKey: ["invoices", company.id] });
   const processing = useMutation({
     mutationFn: () => extract({ data: { id: invoice.id } }),
@@ -63,8 +64,9 @@ export function InvoiceReview({ invoice, history, onClose }: { invoice: Invoice;
       <DialogHeader><DialogTitle className="text-navy">{t.review}</DialogTitle></DialogHeader>
       <p className="break-all text-sm text-muted-foreground" dir="auto">{invoice.file_name}</p>
       <div className="flex flex-wrap items-center gap-2"><span role="status" className="text-sm font-semibold text-steel">{processing.isPending ? t.status.processing : t.status[invoice.status]}</span>
-        {editable && <Button variant="subtle" disabled={busy || invoice.status === "processing" || invoice.error_code === "402" || invoice.error_code === "403"} onClick={() => processing.mutate()}><ScanLine />{t.extract}</Button>}
+        {editable && <Button variant="subtle" disabled={!configured || busy || invoice.status === "processing" || invoice.error_code === "402" || invoice.error_code === "403"} onClick={() => processing.mutate()}><ScanLine />{t.extract}</Button>}
       </div>
+      {!configured && <p role="alert" className="text-sm text-negative">{t.setup}</p>}
       {invoice.processing_error && <p role="alert" className="break-words text-sm text-negative">{invoice.error_code === "23505" ? t.duplicate : invoice.processing_error}</p>}
       <form onSubmit={submit} className="space-y-4" aria-busy={busy}>
         <fieldset disabled={!editable || busy} className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2">
@@ -75,8 +77,8 @@ export function InvoiceReview({ invoice, history, onClose }: { invoice: Invoice;
         {invoice.transaction_id && <p className="break-all text-sm text-positive">{t.transaction}: <bdi className="num">{invoice.transaction_id}</bdi></p>}
         {error && <p role="alert" className="break-words text-sm text-negative">{error}</p>}
         {editable && <><p className="text-sm text-muted-foreground">{t.notice}</p><div className="flex flex-wrap justify-end gap-2">
-          <Button type="submit" variant="subtle" value="save" disabled={busy}>{t.save}</Button>
-          <Button type="submit" value="approve" disabled={busy}>{busy ? <LoaderCircle className="animate-spin" /> : <Check />}{t.approve}</Button>
+          <Button type="submit" variant="subtle" value="save" disabled={busy || !configured}>{t.save}</Button>
+          <Button type="submit" value="approve" disabled={busy || !configured}>{busy ? <LoaderCircle className="animate-spin" /> : <Check />}{t.approve}</Button>
         </div></>}
       </form>
     </DialogContent>

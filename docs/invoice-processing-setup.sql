@@ -23,6 +23,9 @@ CREATE UNIQUE INDEX invoices_company_supplier_number_unique ON public.invoices (
 ) WHERE supplier_name IS NOT NULL AND invoice_number IS NOT NULL;
 REVOKE UPDATE, INSERT ON public.invoices FROM authenticated;
 GRANT INSERT (company_id, file_name, file_path, file_size, notes) ON public.invoices TO authenticated;
+-- Preserve approved history so deleting an invoice cannot bypass duplicate protection.
+CREATE POLICY "Keep approved invoice history" ON public.invoices AS RESTRICTIVE
+FOR DELETE TO authenticated USING (status <> 'approved');
 
 CREATE FUNCTION public.manage_invoice(_id uuid, _action text, _data jsonb DEFAULT '{}'::jsonb)
 RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path = '' AS $$
@@ -58,7 +61,9 @@ BEGIN
       invoice_date = nullif(_data->>'invoice_date','')::date, due_date = nullif(_data->>'due_date','')::date,
       currency = nullif(upper(btrim(_data->>'currency')), ''), subtotal = (_data->>'subtotal')::numeric,
       tax_amount = (_data->>'tax_amount')::numeric, total_amount = (_data->>'total_amount')::numeric,
-      expense_category = nullif(btrim(_data->>'expense_category'), ''), status = 'needs_review', processing_error = NULL, error_code = NULL
+      expense_category = nullif(btrim(_data->>'expense_category'), ''), status = 'needs_review',
+      processing_error = CASE WHEN error_code IN ('402','403') THEN processing_error ELSE NULL END,
+      error_code = CASE WHEN error_code IN ('402','403') THEN error_code ELSE NULL END
     WHERE id = _id;
     RETURN _id;
   ELSIF _action = 'approve' THEN
