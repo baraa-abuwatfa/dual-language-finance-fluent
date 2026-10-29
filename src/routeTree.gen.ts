@@ -15,10 +15,16 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as AuthenticatedCompanyRouteRouteImport } from './routes/_authenticated/_company/route'
 import { Route as AuthenticatedCompanySetupRouteImport } from './routes/_authenticated/company-setup'
-import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedSelectCompanyRouteImport } from './routes/_authenticated/select-company'
 import { Route as AuthenticatedWorkspaceRouteImport } from './routes/_authenticated/workspace'
+import { Route as AuthenticatedCompanyDashboardRouteImport } from './routes/_authenticated/_company/dashboard'
+import { Route as AuthenticatedCompanyInsightsRouteImport } from './routes/_authenticated/_company/insights'
+import { Route as AuthenticatedCompanyInvoicesRouteImport } from './routes/_authenticated/_company/invoices'
+import { Route as AuthenticatedCompanyReportsRouteImport } from './routes/_authenticated/_company/reports'
+import { Route as AuthenticatedCompanySettingsRouteImport } from './routes/_authenticated/_company/settings'
+import { Route as AuthenticatedCompanyTransactionsRouteImport } from './routes/_authenticated/_company/transactions'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -49,17 +55,17 @@ const SignupRoute = SignupRouteImport.update({
   path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedCompanyRouteRoute =
+  AuthenticatedCompanyRouteRouteImport.update({
+    id: '/_company',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCompanySetupRoute =
   AuthenticatedCompanySetupRouteImport.update({
     id: '/company-setup',
     path: '/company-setup',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedSelectCompanyRoute =
   AuthenticatedSelectCompanyRouteImport.update({
     id: '/select-company',
@@ -71,6 +77,42 @@ const AuthenticatedWorkspaceRoute = AuthenticatedWorkspaceRouteImport.update({
   path: '/workspace',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCompanyDashboardRoute =
+  AuthenticatedCompanyDashboardRouteImport.update({
+    id: '/dashboard',
+    path: '/dashboard',
+    getParentRoute: () => AuthenticatedCompanyRouteRoute,
+  } as any)
+const AuthenticatedCompanyInsightsRoute =
+  AuthenticatedCompanyInsightsRouteImport.update({
+    id: '/insights',
+    path: '/insights',
+    getParentRoute: () => AuthenticatedCompanyRouteRoute,
+  } as any)
+const AuthenticatedCompanyInvoicesRoute =
+  AuthenticatedCompanyInvoicesRouteImport.update({
+    id: '/invoices',
+    path: '/invoices',
+    getParentRoute: () => AuthenticatedCompanyRouteRoute,
+  } as any)
+const AuthenticatedCompanyReportsRoute =
+  AuthenticatedCompanyReportsRouteImport.update({
+    id: '/reports',
+    path: '/reports',
+    getParentRoute: () => AuthenticatedCompanyRouteRoute,
+  } as any)
+const AuthenticatedCompanySettingsRoute =
+  AuthenticatedCompanySettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedCompanyRouteRoute,
+  } as any)
+const AuthenticatedCompanyTransactionsRoute =
+  AuthenticatedCompanyTransactionsRouteImport.update({
+    id: '/transactions',
+    path: '/transactions',
+    getParentRoute: () => AuthenticatedCompanyRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -79,9 +121,14 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/company-setup': typeof AuthenticatedCompanySetupRoute
-  '/dashboard': typeof AuthenticatedDashboardRoute
   '/select-company': typeof AuthenticatedSelectCompanyRoute
   '/workspace': typeof AuthenticatedWorkspaceRoute
+  '/dashboard': typeof AuthenticatedCompanyDashboardRoute
+  '/insights': typeof AuthenticatedCompanyInsightsRoute
+  '/invoices': typeof AuthenticatedCompanyInvoicesRoute
+  '/reports': typeof AuthenticatedCompanyReportsRoute
+  '/settings': typeof AuthenticatedCompanySettingsRoute
+  '/transactions': typeof AuthenticatedCompanyTransactionsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -90,9 +137,14 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/company-setup': typeof AuthenticatedCompanySetupRoute
-  '/dashboard': typeof AuthenticatedDashboardRoute
   '/select-company': typeof AuthenticatedSelectCompanyRoute
   '/workspace': typeof AuthenticatedWorkspaceRoute
+  '/dashboard': typeof AuthenticatedCompanyDashboardRoute
+  '/insights': typeof AuthenticatedCompanyInsightsRoute
+  '/invoices': typeof AuthenticatedCompanyInvoicesRoute
+  '/reports': typeof AuthenticatedCompanyReportsRoute
+  '/settings': typeof AuthenticatedCompanySettingsRoute
+  '/transactions': typeof AuthenticatedCompanyTransactionsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -102,10 +154,16 @@ export interface FileRoutesById {
   '/forgot-password': typeof ForgotPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
+  '/_authenticated/_company': typeof AuthenticatedCompanyRouteRouteWithChildren
   '/_authenticated/company-setup': typeof AuthenticatedCompanySetupRoute
-  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/select-company': typeof AuthenticatedSelectCompanyRoute
   '/_authenticated/workspace': typeof AuthenticatedWorkspaceRoute
+  '/_authenticated/_company/dashboard': typeof AuthenticatedCompanyDashboardRoute
+  '/_authenticated/_company/insights': typeof AuthenticatedCompanyInsightsRoute
+  '/_authenticated/_company/invoices': typeof AuthenticatedCompanyInvoicesRoute
+  '/_authenticated/_company/reports': typeof AuthenticatedCompanyReportsRoute
+  '/_authenticated/_company/settings': typeof AuthenticatedCompanySettingsRoute
+  '/_authenticated/_company/transactions': typeof AuthenticatedCompanyTransactionsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -116,9 +174,14 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/company-setup'
-    | '/dashboard'
     | '/select-company'
     | '/workspace'
+    | '/dashboard'
+    | '/insights'
+    | '/invoices'
+    | '/reports'
+    | '/settings'
+    | '/transactions'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -127,9 +190,14 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/company-setup'
-    | '/dashboard'
     | '/select-company'
     | '/workspace'
+    | '/dashboard'
+    | '/insights'
+    | '/invoices'
+    | '/reports'
+    | '/settings'
+    | '/transactions'
   id:
     | '__root__'
     | '/'
@@ -138,10 +206,16 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/reset-password'
     | '/signup'
+    | '/_authenticated/_company'
     | '/_authenticated/company-setup'
-    | '/_authenticated/dashboard'
     | '/_authenticated/select-company'
     | '/_authenticated/workspace'
+    | '/_authenticated/_company/dashboard'
+    | '/_authenticated/_company/insights'
+    | '/_authenticated/_company/invoices'
+    | '/_authenticated/_company/reports'
+    | '/_authenticated/_company/settings'
+    | '/_authenticated/_company/transactions'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -197,18 +271,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/_company': {
+      id: '/_authenticated/_company'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedCompanyRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/company-setup': {
       id: '/_authenticated/company-setup'
       path: '/company-setup'
       fullPath: '/company-setup'
       preLoaderRoute: typeof AuthenticatedCompanySetupRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/dashboard': {
-      id: '/_authenticated/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/select-company': {
@@ -225,19 +299,86 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWorkspaceRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/_company/dashboard': {
+      id: '/_authenticated/_company/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedCompanyDashboardRouteImport
+      parentRoute: typeof AuthenticatedCompanyRouteRoute
+    }
+    '/_authenticated/_company/insights': {
+      id: '/_authenticated/_company/insights'
+      path: '/insights'
+      fullPath: '/insights'
+      preLoaderRoute: typeof AuthenticatedCompanyInsightsRouteImport
+      parentRoute: typeof AuthenticatedCompanyRouteRoute
+    }
+    '/_authenticated/_company/invoices': {
+      id: '/_authenticated/_company/invoices'
+      path: '/invoices'
+      fullPath: '/invoices'
+      preLoaderRoute: typeof AuthenticatedCompanyInvoicesRouteImport
+      parentRoute: typeof AuthenticatedCompanyRouteRoute
+    }
+    '/_authenticated/_company/reports': {
+      id: '/_authenticated/_company/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof AuthenticatedCompanyReportsRouteImport
+      parentRoute: typeof AuthenticatedCompanyRouteRoute
+    }
+    '/_authenticated/_company/settings': {
+      id: '/_authenticated/_company/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedCompanySettingsRouteImport
+      parentRoute: typeof AuthenticatedCompanyRouteRoute
+    }
+    '/_authenticated/_company/transactions': {
+      id: '/_authenticated/_company/transactions'
+      path: '/transactions'
+      fullPath: '/transactions'
+      preLoaderRoute: typeof AuthenticatedCompanyTransactionsRouteImport
+      parentRoute: typeof AuthenticatedCompanyRouteRoute
+    }
   }
 }
 
+interface AuthenticatedCompanyRouteRouteChildren {
+  AuthenticatedCompanyDashboardRoute: typeof AuthenticatedCompanyDashboardRoute
+  AuthenticatedCompanyInsightsRoute: typeof AuthenticatedCompanyInsightsRoute
+  AuthenticatedCompanyInvoicesRoute: typeof AuthenticatedCompanyInvoicesRoute
+  AuthenticatedCompanyReportsRoute: typeof AuthenticatedCompanyReportsRoute
+  AuthenticatedCompanySettingsRoute: typeof AuthenticatedCompanySettingsRoute
+  AuthenticatedCompanyTransactionsRoute: typeof AuthenticatedCompanyTransactionsRoute
+}
+
+const AuthenticatedCompanyRouteRouteChildren: AuthenticatedCompanyRouteRouteChildren =
+  {
+    AuthenticatedCompanyDashboardRoute: AuthenticatedCompanyDashboardRoute,
+    AuthenticatedCompanyInsightsRoute: AuthenticatedCompanyInsightsRoute,
+    AuthenticatedCompanyInvoicesRoute: AuthenticatedCompanyInvoicesRoute,
+    AuthenticatedCompanyReportsRoute: AuthenticatedCompanyReportsRoute,
+    AuthenticatedCompanySettingsRoute: AuthenticatedCompanySettingsRoute,
+    AuthenticatedCompanyTransactionsRoute:
+      AuthenticatedCompanyTransactionsRoute,
+  }
+
+const AuthenticatedCompanyRouteRouteWithChildren =
+  AuthenticatedCompanyRouteRoute._addFileChildren(
+    AuthenticatedCompanyRouteRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedCompanyRouteRoute: typeof AuthenticatedCompanyRouteRouteWithChildren
   AuthenticatedCompanySetupRoute: typeof AuthenticatedCompanySetupRoute
-  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedSelectCompanyRoute: typeof AuthenticatedSelectCompanyRoute
   AuthenticatedWorkspaceRoute: typeof AuthenticatedWorkspaceRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedCompanyRouteRoute: AuthenticatedCompanyRouteRouteWithChildren,
   AuthenticatedCompanySetupRoute: AuthenticatedCompanySetupRoute,
-  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedSelectCompanyRoute: AuthenticatedSelectCompanyRoute,
   AuthenticatedWorkspaceRoute: AuthenticatedWorkspaceRoute,
 }
