@@ -41,7 +41,7 @@ BEGIN
   END IF;
   IF _action = 'start' THEN
     IF inv.status = 'processing' THEN RAISE EXCEPTION 'already_processing'; END IF;
-    IF inv.error_code IN ('402','403') THEN RAISE EXCEPTION 'extraction_paused'; END IF;
+    IF EXISTS (SELECT 1 FROM public.invoices WHERE company_id = inv.company_id AND error_code IN ('402','403')) THEN RAISE EXCEPTION 'extraction_paused'; END IF;
     UPDATE public.invoices SET status = 'processing', processing_error = NULL, error_code = NULL WHERE id = _id;
     RETURN _id;
   ELSIF _action = 'fail' THEN

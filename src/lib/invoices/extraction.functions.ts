@@ -14,6 +14,9 @@ export const extractInvoice = createServerFn({ method: "POST" })
     if (error || !inv) return { ok: false, code: "access", message: null };
     const key = process.env["LOVABLE_API_KEY"];
     if (!key) return { ok: false, code: "configuration", message: null };
+    const { data: blocked, error: blockedError } = await client.from("invoices").select("processing_error, error_code").eq("company_id", inv.company_id).in("error_code", ["402", "403"]).limit(1);
+    if (blockedError) return { ok: false, code: blockedError.code, message: null };
+    if (blocked?.[0]) return { ok: false, code: blocked[0].error_code, message: blocked[0].processing_error };
     const { error: startError } = await client.rpc("manage_invoice", { _id: data.id, _action: "start" });
     if (startError) return { ok: false, code: startError.code, message: null };
     try {

@@ -12,6 +12,7 @@ import { invoiceCopy, invoiceError } from "@/lib/invoices/copy";
 import { extractInvoice } from "@/lib/invoices/extraction.functions";
 import { duplicateIdentity, reviewSchema, type Review } from "@/lib/invoices/rules";
 import { canEdit } from "@/lib/finance/queries";
+import { confirmInvoice } from "@/lib/invoices/confirmation";
 
 const fields = ["supplier_name", "invoice_number", "invoice_date", "due_date", "currency", "subtotal", "tax_amount", "total_amount", "expense_category"] as const;
 type Draft = Record<typeof fields[number], string>;
@@ -38,8 +39,7 @@ export function InvoiceReview({ invoice, history, onClose }: { invoice: Invoice;
   });
   const save = useMutation({
     mutationFn: async ({ review, approve }: { review: Review; approve: boolean }) => {
-      await invoiceAction(invoice.id, "review", review);
-      if (approve) await invoiceAction(invoice.id, "approve");
+      await confirmInvoice(invoice.id, review, approve, invoiceAction);
     },
     onSuccess: async (_, v) => {
       await refresh();
