@@ -1,6 +1,6 @@
 const en = {
   title: "Invoices", intro: "Private company invoices", upload: "Upload invoice", formats: "PDF · JPG · JPEG · PNG · 10 MB", search: "Search file, supplier or invoice number", all: "All statuses",
-  status: { uploaded: "Uploaded", processing: "Processing", needs_review: "Needs Review", approved: "Approved", failed: "Failed" },
+  status: { uploaded: "Uploaded", processing: "Processing", needs_review: "Review Saved – Awaiting Approval", approved: "Approved", failed: "Failed" },
   supplier_name: "Supplier name", invoice_number: "Invoice number", invoice_date: "Invoice date", due_date: "Due date", currency: "Currency", subtotal: "Subtotal", tax_amount: "Tax amount", total_amount: "Total amount", expense_category: "Expense category",
   extract: "Extract invoice", review: "Review invoice", save: "Save review", approve: "Confirm and record expense", approved: "Expense recorded", open: "Open file", empty: "No invoices uploaded yet.", noMatch: "No invoices match your filters.",
   notice: "Review all fields before confirming. No expense is recorded until you confirm.", duplicate: "This supplier and invoice number already exist in this company. No expense was added.",
@@ -12,7 +12,7 @@ const en = {
 type Copy = typeof en;
 const ar: Copy = {
   title: "الفواتير", intro: "فواتير خاصة بالشركة", upload: "رفع فاتورة", formats: "PDF · JPG · JPEG · PNG · 10 MB", search: "ابحث بالملف أو المورد أو رقم الفاتورة", all: "كل الحالات",
-  status: { uploaded: "تم الرفع", processing: "قيد المعالجة", needs_review: "تحتاج مراجعة", approved: "معتمدة", failed: "فشلت المعالجة" },
+  status: { uploaded: "تم الرفع", processing: "قيد المعالجة", needs_review: "تم حفظ المراجعة – بانتظار الاعتماد", approved: "معتمدة", failed: "فشلت المعالجة" },
   supplier_name: "اسم المورد", invoice_number: "رقم الفاتورة", invoice_date: "تاريخ الفاتورة", due_date: "تاريخ الاستحقاق", currency: "العملة", subtotal: "المجموع الفرعي", tax_amount: "مبلغ الضريبة", total_amount: "الإجمالي", expense_category: "فئة المصروف",
   extract: "استخراج بيانات الفاتورة", review: "مراجعة الفاتورة", save: "حفظ المراجعة", approve: "تأكيد وتسجيل المصروف", approved: "تم تسجيل المصروف", open: "فتح الملف", empty: "لم تُرفع أي فواتير بعد.", noMatch: "لا توجد فواتير تطابق البحث.",
   notice: "راجع جميع البيانات قبل التأكيد. لن يُسجَّل أي مصروف حتى تؤكد ذلك.", duplicate: "يوجد هذا المورد ورقم الفاتورة بالفعل في هذه الشركة. لم يُضف مصروف.",
