@@ -19,10 +19,10 @@ function preset(months: number): Range {
 }
 
 export const Route = createFileRoute("/_authenticated/_company/intelligence")({
-  validateSearch: (s: Record<string, unknown>): Partial<Range> => ({
-    from: typeof s.from === "string" && ISO.test(s.from) ? s.from : undefined,
-    to: typeof s.to === "string" && ISO.test(s.to) ? s.to : undefined,
-  }),
+  validateSearch: (s: Record<string, unknown>): { from?: string | undefined; to?: string | undefined } => {
+    const from = s["from"], to = s["to"];
+    return { from: typeof from === "string" && ISO.test(from) ? from : undefined, to: typeof to === "string" && ISO.test(to) ? to : undefined };
+  },
   head: () => authHead("Financial Intelligence", "Rule-based trends, comparisons, alerts and recommendations from your recorded transactions."),
   loader: ({ context }) => context.queryClient.ensureQueryData(transactionsQuery(context.company.id)),
   component: Intelligence,
