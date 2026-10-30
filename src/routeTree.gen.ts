@@ -21,6 +21,7 @@ import { Route as AuthenticatedSelectCompanyRouteImport } from './routes/_authen
 import { Route as AuthenticatedWorkspaceRouteImport } from './routes/_authenticated/workspace'
 import { Route as AuthenticatedCompanyDashboardRouteImport } from './routes/_authenticated/_company/dashboard'
 import { Route as AuthenticatedCompanyInsightsRouteImport } from './routes/_authenticated/_company/insights'
+import { Route as AuthenticatedCompanyIntelligenceRouteImport } from './routes/_authenticated/_company/intelligence'
 import { Route as AuthenticatedCompanyInvoicesRouteImport } from './routes/_authenticated/_company/invoices'
 import { Route as AuthenticatedCompanyReportsRouteImport } from './routes/_authenticated/_company/reports'
 import { Route as AuthenticatedCompanySettingsRouteImport } from './routes/_authenticated/_company/settings'
@@ -89,6 +90,12 @@ const AuthenticatedCompanyInsightsRoute =
     path: '/insights',
     getParentRoute: () => AuthenticatedCompanyRouteRoute,
   } as any)
+const AuthenticatedCompanyIntelligenceRoute =
+  AuthenticatedCompanyIntelligenceRouteImport.update({
+    id: '/intelligence',
+    path: '/intelligence',
+    getParentRoute: () => AuthenticatedCompanyRouteRoute,
+  } as any)
 const AuthenticatedCompanyInvoicesRoute =
   AuthenticatedCompanyInvoicesRouteImport.update({
     id: '/invoices',
@@ -125,6 +132,7 @@ export interface FileRoutesByFullPath {
   '/workspace': typeof AuthenticatedWorkspaceRoute
   '/dashboard': typeof AuthenticatedCompanyDashboardRoute
   '/insights': typeof AuthenticatedCompanyInsightsRoute
+  '/intelligence': typeof AuthenticatedCompanyIntelligenceRoute
   '/invoices': typeof AuthenticatedCompanyInvoicesRoute
   '/reports': typeof AuthenticatedCompanyReportsRoute
   '/settings': typeof AuthenticatedCompanySettingsRoute
@@ -141,6 +149,7 @@ export interface FileRoutesByTo {
   '/workspace': typeof AuthenticatedWorkspaceRoute
   '/dashboard': typeof AuthenticatedCompanyDashboardRoute
   '/insights': typeof AuthenticatedCompanyInsightsRoute
+  '/intelligence': typeof AuthenticatedCompanyIntelligenceRoute
   '/invoices': typeof AuthenticatedCompanyInvoicesRoute
   '/reports': typeof AuthenticatedCompanyReportsRoute
   '/settings': typeof AuthenticatedCompanySettingsRoute
@@ -160,6 +169,7 @@ export interface FileRoutesById {
   '/_authenticated/workspace': typeof AuthenticatedWorkspaceRoute
   '/_authenticated/_company/dashboard': typeof AuthenticatedCompanyDashboardRoute
   '/_authenticated/_company/insights': typeof AuthenticatedCompanyInsightsRoute
+  '/_authenticated/_company/intelligence': typeof AuthenticatedCompanyIntelligenceRoute
   '/_authenticated/_company/invoices': typeof AuthenticatedCompanyInvoicesRoute
   '/_authenticated/_company/reports': typeof AuthenticatedCompanyReportsRoute
   '/_authenticated/_company/settings': typeof AuthenticatedCompanySettingsRoute
@@ -178,6 +188,7 @@ export interface FileRouteTypes {
     | '/workspace'
     | '/dashboard'
     | '/insights'
+    | '/intelligence'
     | '/invoices'
     | '/reports'
     | '/settings'
@@ -194,6 +205,7 @@ export interface FileRouteTypes {
     | '/workspace'
     | '/dashboard'
     | '/insights'
+    | '/intelligence'
     | '/invoices'
     | '/reports'
     | '/settings'
@@ -212,6 +224,7 @@ export interface FileRouteTypes {
     | '/_authenticated/workspace'
     | '/_authenticated/_company/dashboard'
     | '/_authenticated/_company/insights'
+    | '/_authenticated/_company/intelligence'
     | '/_authenticated/_company/invoices'
     | '/_authenticated/_company/reports'
     | '/_authenticated/_company/settings'
@@ -313,6 +326,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCompanyInsightsRouteImport
       parentRoute: typeof AuthenticatedCompanyRouteRoute
     }
+    '/_authenticated/_company/intelligence': {
+      id: '/_authenticated/_company/intelligence'
+      path: '/intelligence'
+      fullPath: '/intelligence'
+      preLoaderRoute: typeof AuthenticatedCompanyIntelligenceRouteImport
+      parentRoute: typeof AuthenticatedCompanyRouteRoute
+    }
     '/_authenticated/_company/invoices': {
       id: '/_authenticated/_company/invoices'
       path: '/invoices'
@@ -347,6 +367,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedCompanyRouteRouteChildren {
   AuthenticatedCompanyDashboardRoute: typeof AuthenticatedCompanyDashboardRoute
   AuthenticatedCompanyInsightsRoute: typeof AuthenticatedCompanyInsightsRoute
+  AuthenticatedCompanyIntelligenceRoute: typeof AuthenticatedCompanyIntelligenceRoute
   AuthenticatedCompanyInvoicesRoute: typeof AuthenticatedCompanyInvoicesRoute
   AuthenticatedCompanyReportsRoute: typeof AuthenticatedCompanyReportsRoute
   AuthenticatedCompanySettingsRoute: typeof AuthenticatedCompanySettingsRoute
@@ -357,6 +378,8 @@ const AuthenticatedCompanyRouteRouteChildren: AuthenticatedCompanyRouteRouteChil
   {
     AuthenticatedCompanyDashboardRoute: AuthenticatedCompanyDashboardRoute,
     AuthenticatedCompanyInsightsRoute: AuthenticatedCompanyInsightsRoute,
+    AuthenticatedCompanyIntelligenceRoute:
+      AuthenticatedCompanyIntelligenceRoute,
     AuthenticatedCompanyInvoicesRoute: AuthenticatedCompanyInvoicesRoute,
     AuthenticatedCompanyReportsRoute: AuthenticatedCompanyReportsRoute,
     AuthenticatedCompanySettingsRoute: AuthenticatedCompanySettingsRoute,
