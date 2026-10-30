@@ -34,7 +34,7 @@ export function companyDestination(members: { status: string }[]) {
   return active.length === 0 ? "/company-setup" : active.length > 1 ? "/select-company" : "/workspace";
 }
 export function safeReturnPath(value: unknown): string | undefined {
-  return typeof value === "string" && ["/dashboard", "/workspace", "/company-setup", "/select-company", "/transactions", "/invoices", "/reports", "/insights", "/settings"].includes(value) ? value : undefined;
+  return typeof value === "string" && ["/dashboard", "/workspace", "/company-setup", "/select-company", "/transactions", "/invoices", "/reports", "/insights", "/intelligence", "/settings"].includes(value) ? value : undefined;
 }
 export const CURRENCIES = ["USD", "EUR", "GBP", "SAR", "AED", "ILS", "JOD", "EGP", "KWD", "QAR"] as const;
 export const companySchema = z.object({
