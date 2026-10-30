@@ -7,6 +7,7 @@ const en = {
   invalid: "Complete the required fields, check the dates, and make sure subtotal plus tax equals total.", currencyMismatch: "Invoice currency must match the company currency. Currency conversion is not configured; no expense was recorded.",
   failed: "The action failed. Please try again.", setup: "Invoice processing needs a database update in the existing account service. Uploads and file history remain available.", fileType: "Only PDF, JPG, JPEG and PNG files are supported.", fileTooLarge: "Choose a non-empty file up to 10 MB.",
   working: "Please wait…", close: "Close", retry: "Try again", readonly: "Your role can view invoices but cannot change them.", transaction: "Linked expense", missingAI: "AI extraction is not configured. You can enter the invoice fields manually.", busy: "This invoice is already processing. Reload its status before starting another extraction.",
+  saved: "Review saved. No expense is recorded until you confirm.",
 };
 type Copy = typeof en;
 const ar: Copy = {
@@ -18,6 +19,7 @@ const ar: Copy = {
   invalid: "أكمل الحقول المطلوبة وتحقق من التواريخ ومن أن المجموع الفرعي والضريبة يساويان الإجمالي.", currencyMismatch: "يجب أن تطابق عملة الفاتورة عملة الشركة. تحويل العملات غير مُعدّ؛ لم يُسجَّل مصروف.",
   failed: "تعذّر إكمال الإجراء. يرجى المحاولة مجددًا.", setup: "تحتاج معالجة الفواتير إلى تحديث قاعدة البيانات في خدمة الحسابات الحالية. يظل رفع الملفات وسجلها متاحين.", fileType: "الملفات المدعومة: PDF وJPG وJPEG وPNG فقط.", fileTooLarge: "اختر ملفًا غير فارغ لا يتجاوز 10 ميغابايت.",
   working: "يرجى الانتظار…", close: "إغلاق", retry: "المحاولة مجددًا", readonly: "يمكن لدورك عرض الفواتير دون تعديلها.", transaction: "المصروف المرتبط", missingAI: "استخراج البيانات بالذكاء الاصطناعي غير مُعدّ. يمكنك إدخال بيانات الفاتورة يدويًا.", busy: "هذه الفاتورة قيد المعالجة بالفعل. حدّث حالتها قبل بدء استخراج آخر.",
+  saved: "تم حفظ المراجعة. لن يُسجَّل أي مصروف حتى تؤكد ذلك.",
 };
 export const invoiceCopy = { en, ar };
 export function invoiceError(error: unknown, t: Copy) {
@@ -26,6 +28,7 @@ export function invoiceError(error: unknown, t: Copy) {
   if (e?.code === "23505" || e?.message?.includes("duplicate_invoice")) return t.duplicate;
   if (e?.message?.includes("currency_mismatch")) return t.currencyMismatch;
   if (e?.message?.includes("already_processing")) return t.busy;
+  if (e?.message?.includes("incomplete_review")) return t.invalid;
   if (e?.message === "fileType") return t.fileType;
   if (e?.message === "fileTooLarge") return t.fileTooLarge;
   return t.failed;

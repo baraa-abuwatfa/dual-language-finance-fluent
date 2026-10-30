@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { duplicateIdentity, reviewSchema, validateInvoiceFile } from "./rules";
+import { duplicateIdentity, parseReview, reviewSchema, validateInvoiceFile, type ReviewDraft } from "./rules";
 const review = { supplier_name: "Supplier", invoice_number: "INV-1", invoice_date: "2026-10-29", due_date: null, currency: "USD", subtotal: 100, tax_amount: 15, total_amount: 115, expense_category: "Office" };
 describe("invoice financial rules", () => {
   it("accepts PDF JPG/JPEG and PNG uploads", () => {
@@ -27,5 +27,17 @@ describe("invoice financial rules", () => {
   it("allows absent due date and rejects impossible invoice dates", () => {
     expect(reviewSchema.safeParse(review).success).toBe(true);
     expect(reviewSchema.safeParse({ ...review, invoice_date: "2026-02-30" }).success).toBe(false);
+  });
+  it("parses the review form into exact database fields", () => {
+    const draft: ReviewDraft = { supplier_name: "Supplier", invoice_number: "INV-1", invoice_date: "2026-10-29", due_date: "", currency: "usd", subtotal: "100", tax_amount: "15", total_amount: "115", expense_category: "Office" };
+    const parsed = parseReview(draft);
+    expect(parsed.success).toBe(true);
+    if (parsed.success) expect(parsed.data).toEqual(review);
+  });
+  it("rejects incomplete or unbalanced review forms without calling the database", () => {
+    const draft: ReviewDraft = { supplier_name: "Supplier", invoice_number: "INV-1", invoice_date: "2026-10-29", due_date: "", currency: "USD", subtotal: "100", tax_amount: "15", total_amount: "115", expense_category: "Office" };
+    expect(parseReview({ ...draft, total_amount: "120" }).success).toBe(false);
+    expect(parseReview({ ...draft, subtotal: "" }).success).toBe(false);
+    expect(parseReview({ ...draft, supplier_name: " " }).success).toBe(false);
   });
 });
