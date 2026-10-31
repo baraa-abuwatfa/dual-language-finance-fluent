@@ -1,3 +1,8 @@
+# Standardized categories
+- [ ] Add fixed bilingual searchable transaction and invoice selectors without changing historical values.
+- [ ] Localize stored category references in financial views and verify category rules and form interactions.
+- [ ] Verify signed-in create/edit and dashboard/intelligence readback: blocked by unavailable external account session.
+
 # Invoice processing
 - [x] Extend existing invoice history, private upload, bilingual review and explicit approval; real AI extraction verified against a labeled test document without saving financial data.
 - [ ] Apply minimal invoice migration: blocked by transferred external database lacking management access.
