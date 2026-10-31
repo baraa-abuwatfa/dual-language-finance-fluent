@@ -13,6 +13,8 @@ import { extractInvoice } from "@/lib/invoices/extraction.functions";
 import { duplicateIdentity, parseReview, type Review } from "@/lib/invoices/rules";
 import { canEdit } from "@/lib/finance/queries";
 import { confirmInvoice } from "@/lib/invoices/confirmation";
+import { CategorySelect } from "./CategorySelect";
+import { categoryCopy, isStandardCategory } from "@/lib/finance/categories";
 
 const fields = ["supplier_name", "invoice_number", "invoice_date", "due_date", "currency", "subtotal", "tax_amount", "total_amount", "expense_category"] as const;
 type Draft = Record<typeof fields[number], string>;
@@ -53,10 +55,12 @@ export function InvoiceReview({ invoice, history, onClose }: { invoice: Invoice;
   const busy = save.isPending || processing.isPending;
   function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (busy) return;
     const parsed = parseReview(draft);
     if (!parsed.success) { setSaved(false); setError(t.invalid); return; }
     if (history.some((i) => i.id !== invoice.id && i.supplier_name && i.invoice_number && duplicateIdentity(i.supplier_name, i.invoice_number) === duplicateIdentity(parsed.data.supplier_name, parsed.data.invoice_number))) { setError(t.duplicate); return; }
     const approve = (e.nativeEvent as SubmitEvent).submitter?.getAttribute("value") === "approve";
+    if (approve && !isStandardCategory(parsed.data.expense_category, "expense")) { setError(categoryCopy[locale].invalid); return; }
     if (approve && parsed.data.currency !== company.currency.toUpperCase()) { setError(t.currencyMismatch); return; }
     save.mutate({ review: parsed.data, approve });
   }
@@ -72,7 +76,7 @@ export function InvoiceReview({ invoice, history, onClose }: { invoice: Invoice;
       <form onSubmit={submit} className="space-y-4" aria-busy={busy}>
         <fieldset disabled={!editable || busy} className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2">
           {fields.map((f) => <div key={f} className="min-w-0"><label htmlFor={`inv-${f}`} className="mb-1.5 block text-sm font-semibold text-navy">{t[f]}</label>
-            <Input id={`inv-${f}`} value={draft[f]} onChange={(e) => { setSaved(false); setDraft((d) => ({ ...d, [f]: e.target.value })); }} type={f.endsWith("date") ? "date" : amounts.includes(f) ? "number" : "text"} step={amounts.includes(f) ? "0.01" : undefined} min={amounts.includes(f) ? 0 : undefined} maxLength={f === "currency" ? 3 : f === "supplier_name" ? 200 : f === "invoice_number" ? 100 : 60} dir={f === "supplier_name" || f === "expense_category" ? "auto" : "ltr"} required={f !== "due_date"} />
+            {f === "expense_category" ? <CategorySelect id={`inv-${f}`} type="expense" value={draft[f]} legacy={draft[f]} disabled={!editable || busy} onChange={(expense_category) => { setSaved(false); setDraft((d) => ({ ...d, expense_category })); }} /> : <Input id={`inv-${f}`} value={draft[f]} onChange={(e) => { setSaved(false); setDraft((d) => ({ ...d, [f]: e.target.value })); }} type={f.endsWith("date") ? "date" : amounts.includes(f) ? "number" : "text"} step={amounts.includes(f) ? "0.01" : undefined} min={amounts.includes(f) ? 0 : undefined} maxLength={f === "currency" ? 3 : f === "supplier_name" ? 200 : f === "invoice_number" ? 100 : 60} dir={f === "supplier_name" ? "auto" : "ltr"} required={f !== "due_date"} />}
           </div>)}
         </fieldset>
         {invoice.transaction_id && <p className="break-all text-sm text-positive">{t.transaction}: <bdi className="num">{invoice.transaction_id}</bdi></p>}

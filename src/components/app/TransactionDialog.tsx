@@ -11,6 +11,8 @@ import { todayIso } from "@/lib/finance/queries";
 import type { Tx } from "@/lib/finance/metrics";
 import { useI18n } from "@/lib/i18n/I18nProvider";
 import { selectClass } from "./ui";
+import { CategorySelect } from "./CategorySelect";
+import { validTransactionCategory } from "@/lib/finance/categories";
 
 export const txSchema = z.object({
   type: z.enum(["income", "expense"]),
@@ -22,7 +24,7 @@ export const txSchema = z.object({
 type Field = keyof z.infer<typeof txSchema>;
 type Draft = Record<Field, string>;
 
-export function TransactionDialog({ open, onOpenChange, initial, defaultType = "expense", categories }: { open: boolean; onOpenChange: (o: boolean) => void; initial?: Tx | null; defaultType?: "income" | "expense"; categories: string[] }) {
+export function TransactionDialog({ open, onOpenChange, initial, defaultType = "expense" }: { open: boolean; onOpenChange: (o: boolean) => void; initial?: Tx | null; defaultType?: "income" | "expense" }) {
   const { t } = useAppCopy();
   const { dir } = useI18n();
   const { company } = useCompany();
@@ -43,8 +45,10 @@ export function TransactionDialog({ open, onOpenChange, initial, defaultType = "
 
   function submit(e: FormEvent) {
     e.preventDefault();
+    if (save.isPending) return;
     const parsed = txSchema.safeParse(draft);
     if (!parsed.success) { setErrors(Object.fromEntries(parsed.error.issues.map((i) => [i.path[0], i.message]))); return; }
+    if (!validTransactionCategory(parsed.data.category, parsed.data.type, initial)) { setErrors({ category: "invalidCategory" }); return; }
     setErrors({}); save.mutate(parsed.data);
   }
   const msg = (f: Field) => errors[f] && <p id={`tx-${f}-err`} role="alert" className="mt-1 text-xs text-negative">{t[errors[f] as "invalidAmount"] ?? t.failed}</p>;
@@ -57,11 +61,11 @@ export function TransactionDialog({ open, onOpenChange, initial, defaultType = "
       <form onSubmit={submit} noValidate className="space-y-4" aria-busy={save.isPending}>
         <fieldset className="grid grid-cols-2 gap-2"><legend className={label}>{t.type}</legend>
           {(["income", "expense"] as const).map((k) => <label key={k} className={`flex cursor-pointer items-center justify-center rounded-md border px-3 py-2 text-sm font-medium transition-colors ${draft.type === k ? k === "income" ? "border-positive bg-positive-soft text-positive" : "border-negative bg-negative-soft text-negative" : "border-input"}`}>
-            <input type="radio" name="type" value={k} checked={draft.type === k} onChange={set("type")} className="sr-only" />{t[k]}
+            <input type="radio" name="type" value={k} checked={draft.type === k} disabled={save.isPending} onChange={() => setDraft((d) => ({ ...d, type: k, category: d.type === k ? d.category : "" }))} className="sr-only" />{t[k]}
           </label>)}
         </fieldset>
         <div><label htmlFor="tx-amount" className={label}>{t.amount} <span className="num text-muted-foreground">({company.currency})</span></label><Input id="tx-amount" inputMode="decimal" dir="ltr" value={draft.amount} onChange={set("amount")} aria-invalid={!!errors.amount} aria-describedby={errors.amount ? "tx-amount-err" : undefined} />{msg("amount")}</div>
-        <div><label htmlFor="tx-category" className={label}>{t.category}</label><Input id="tx-category" list="tx-categories" maxLength={60} value={draft.category} onChange={set("category")} aria-invalid={!!errors.category} aria-describedby={errors.category ? "tx-category-err" : undefined} /><datalist id="tx-categories">{categories.map((c) => <option key={c} value={c} />)}</datalist>{msg("category")}</div>
+        <div><label htmlFor="tx-category" className={label}>{t.category}</label><CategorySelect id="tx-category" type={draft.type === "income" ? "income" : "expense"} value={draft.category} legacy={initial?.type === draft.type ? initial.category : undefined} disabled={save.isPending} onChange={(category) => setDraft((d) => ({ ...d, category }))} invalid={!!errors.category} describedBy={errors.category ? "tx-category-err" : undefined} />{msg("category")}</div>
         <div><label htmlFor="tx-date" className={label}>{t.date}</label><Input id="tx-date" type="date" dir="ltr" value={draft.occurred_on} onChange={set("occurred_on")} className={selectClass + " w-full"} aria-invalid={!!errors.occurred_on} />{msg("occurred_on")}</div>
         <div><label htmlFor="tx-desc" className={label}>{t.description}</label><Input id="tx-desc" maxLength={300} value={draft.description} onChange={set("description")} />{msg("description")}</div>
         {save.isError && <p role="alert" className="text-sm text-negative">{t.failed}</p>}
