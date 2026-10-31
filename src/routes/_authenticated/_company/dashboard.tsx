@@ -23,7 +23,6 @@ function Dashboard() {
   const { data: txs } = useSuspenseQuery(transactionsQuery(company.id));
   const month = monthKey(todayIso());
   const cur = totals(txs.filter((x) => monthKey(x.occurred_on) === month));
-  const all = totals(txs);
   const fmt = (v: number) => formatAmount(v, company.currency);
   const has = txs.length > 0;
   const cap = has ? t.thisMonth : t.noData;
@@ -37,7 +36,7 @@ function Dashboard() {
       <StatCard label={t.revenue} value={has ? fmt(cur.revenue) : "—"} caption={cap} icon={<TrendingUp />} />
       <StatCard label={t.expenses} value={has ? fmt(cur.expenses) : "—"} caption={cap} icon={<TrendingDown />} />
       <StatCard label={t.netProfit} value={has ? fmt(cur.net) : "—"} caption={cap} tone={tone(cur.net)} icon={<Wallet />} />
-      <StatCard label={t.cashFlow} value={has ? fmt(all.net) : "—"} caption={has ? t.allTime : t.noData} tone={tone(all.net)} icon={<Landmark />} />
+      <StatCard label={t.cashFlow} value={has ? fmt(cur.net) : "—"} caption={cap} tone={tone(cur.net)} icon={<Landmark />} />
     </section>
     <Panel title={t.quick}>
       <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
