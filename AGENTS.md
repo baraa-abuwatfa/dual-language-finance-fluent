@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Database
+- Fixed categories use stable English references in existing company-scoped transaction.category and invoice.expense_category text fields, with labels resolved only for display; legacy values are preserved and new invoice approvals require a predefined expense category. Why: avoids schema changes and language-dependent stored identities without altering historical records.
 - Invoice review extends existing invoices and uses an authenticated atomic approval RPC; invoice and transaction caches share company-scoped invalidation. Why: approval retries cannot create multiple expenses and dashboard totals use recorded transactions only.
 - Pending external-database invoice SQL is documented in docs/invoice-processing-setup.sql, not claimed as an applied migration. Why: this transferred project has no managed database migration access.
 - Multi-company access is enforced in Postgres RLS via `private.*` security-definer helpers keyed on `auth.uid()`; companies are created only through `public.create_company()` so the creator becomes owner atomically. Why: keeps tenant isolation in the database, not app code.
