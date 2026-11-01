@@ -1,6 +1,6 @@
 # Standardized categories
-- [ ] Add fixed bilingual searchable transaction and invoice selectors without changing historical values.
-- [ ] Localize stored category references in financial views and verify category rules and form interactions.
+- [x] Add fixed bilingual searchable transaction and invoice selectors without changing historical values; reuse existing company-scoped text fields without a migration.
+- [x] Localize stored category references in financial views; 41 targeted tests passed, including English/Arabic income and expense create/edit form requests, legacy preservation, and invoice approval regressions.
 - [ ] Verify signed-in create/edit and dashboard/intelligence readback: blocked by unavailable external account session.
 
 # Invoice processing

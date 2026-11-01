@@ -8,6 +8,7 @@ import { authHead } from "@/lib/auth/head";
 import { useAppCopy, useCompany } from "@/lib/company/use-company";
 import { categoryBreakdown, lastMonths, monthKey, monthlySeries, totals } from "@/lib/finance/metrics";
 import { formatAmount, todayIso, transactionsQuery } from "@/lib/finance/queries";
+import { categoryLabel } from "@/lib/finance/categories";
 
 export const Route = createFileRoute("/_authenticated/_company/dashboard")({
   head: () => authHead("Dashboard", "Your AI CFO financial overview."),
@@ -18,7 +19,7 @@ export const Route = createFileRoute("/_authenticated/_company/dashboard")({
 });
 
 function Dashboard() {
-  const { t } = useAppCopy();
+  const { t, locale } = useAppCopy();
   const { company } = useCompany();
   const { data: txs } = useSuspenseQuery(transactionsQuery(company.id));
   const month = monthKey(todayIso());
@@ -53,7 +54,7 @@ function Dashboard() {
     <Panel title={t.recent} action={has && <Link to="/transactions" className="text-sm font-semibold text-steel hover:underline">{t.viewAll}</Link>}>
       {has ? <ul className="divide-y divide-border">
         {txs.slice(0, 6).map((x) => <li key={x.id} className="flex items-center justify-between gap-3 py-3">
-          <div className="min-w-0"><p className="truncate text-sm font-medium text-navy">{x.description || x.category}</p><p className="text-xs text-muted-foreground">{x.category} · <span className="num">{x.occurred_on}</span></p></div>
+          <div className="min-w-0"><p className="truncate text-sm font-medium text-navy">{x.description || categoryLabel(x.category, locale)}</p><p className="text-xs text-muted-foreground">{categoryLabel(x.category, locale)} · <span className="num">{x.occurred_on}</span></p></div>
           <span className={`num shrink-0 text-sm font-semibold ${x.type === "income" ? "text-positive" : "text-negative"}`}>{x.type === "income" ? "+" : "−"}{fmt(x.amount)}</span>
         </li>)}
       </ul> : <EmptyState text={t.recentEmpty} action={<Button asChild size="sm" className="bg-steel text-on-navy hover:bg-steel/90"><Link to="/transactions" search={{ new: "income" }}><Plus />{t.addIncome}</Link></Button>} />}

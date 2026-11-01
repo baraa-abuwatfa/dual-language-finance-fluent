@@ -2,6 +2,7 @@ import { Bar, BarChart, CartesianGrid, Cell, Legend, Pie, PieChart, ResponsiveCo
 import { formatAmount, monthLabel } from "@/lib/finance/queries";
 import { useAppCopy } from "@/lib/company/use-company";
 import { useI18n } from "@/lib/i18n/I18nProvider";
+import { categoryLabel } from "@/lib/finance/categories";
 
 type Monthly = { month: string; revenue: number; expenses: number };
 const PIE = ["var(--navy)", "var(--steel)", "var(--taupe)", "var(--mist)", "var(--champagne)", "var(--cloud)"];
@@ -32,16 +33,17 @@ export function MonthlyChart({ data, currency }: { data: Monthly[]; currency: st
 }
 
 export function CategoryChart({ data, currency }: { data: { category: string; amount: number }[]; currency: string }) {
+  const { locale } = useI18n();
   const top = data.slice(0, 5);
   const rest = data.slice(5).reduce((s, c) => s + c.amount, 0);
-  const rows = rest > 0 ? [...top, { category: "…", amount: rest }] : top;
+  const rows = (rest > 0 ? [...top, { category: "…", amount: rest }] : top).map((c) => ({ ...c, label: categoryLabel(c.category, locale) }));
   const total = rows.reduce((s, c) => s + c.amount, 0);
   return <div className="grid items-center gap-4 sm:grid-cols-2">
     <div className="h-52" dir="ltr">
       <ResponsiveContainer>
         <PieChart>
           <defs><filter id="pie-depth"><feDropShadow dx="0" dy="5" stdDeviation="3" floodColor="var(--navy)" floodOpacity="0.2" /></filter></defs>
-          <Pie data={rows} dataKey="amount" nameKey="category" innerRadius="55%" outerRadius="90%" paddingAngle={2} stroke="var(--card)" strokeWidth={2} filter="url(#pie-depth)">
+          <Pie data={rows} dataKey="amount" nameKey="label" innerRadius="55%" outerRadius="90%" paddingAngle={2} stroke="var(--card)" strokeWidth={2} filter="url(#pie-depth)">
             {rows.map((_, i) => <Cell key={i} fill={PIE[i % PIE.length]} />)}
           </Pie>
           <Tooltip formatter={(v: number) => formatAmount(v, currency)} contentStyle={{ borderRadius: 8, border: "1px solid var(--border)" }} />
@@ -50,7 +52,7 @@ export function CategoryChart({ data, currency }: { data: { category: string; am
     </div>
     <ul className="space-y-2 text-sm">
       {rows.map((c, i) => <li key={c.category} className="flex items-center justify-between gap-3">
-        <span className="flex min-w-0 items-center gap-2"><span className="size-2.5 shrink-0 rounded-full" style={{ background: PIE[i % PIE.length] }} aria-hidden="true" /><span className="truncate">{c.category}</span></span>
+        <span className="flex min-w-0 items-center gap-2"><span className="size-2.5 shrink-0 rounded-full" style={{ background: PIE[i % PIE.length] }} aria-hidden="true" /><span className="truncate">{c.label}</span></span>
         <span className="num shrink-0 text-muted-foreground">{formatAmount(c.amount, currency)} · {((c.amount / total) * 100).toFixed(1)}%</span>
       </li>)}
     </ul>

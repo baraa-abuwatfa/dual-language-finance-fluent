@@ -8,7 +8,7 @@ import { categoriesFor, categoryCopy, categoryLabel, type CategoryType } from "@
 
 export function CategorySelect({ id, type, value, onChange, legacy, disabled, invalid, describedBy }: {
   id: string; type: CategoryType; value: string; onChange: (value: string) => void;
-  legacy?: string; disabled?: boolean; invalid?: boolean; describedBy?: string;
+  legacy?: string | undefined; disabled?: boolean; invalid?: boolean; describedBy?: string | undefined;
 }) {
   const { locale, dir } = useI18n();
   const [open, setOpen] = useState(false);

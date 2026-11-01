@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { authHead } from "@/lib/auth/head";
 import { useAppCopy, useCompany } from "@/lib/company/use-company";
 import { canEdit } from "@/lib/finance/queries";
+import { categoryLabel } from "@/lib/finance/categories";
 import { invoiceHistoryQuery } from "@/lib/invoices/data";
 import { invoiceCopy, invoiceError } from "@/lib/invoices/copy";
 import { invoiceTypes, invoiceStatuses, validateInvoiceFile } from "@/lib/invoices/rules";
@@ -33,7 +34,7 @@ function Invoices() {
   const [selected, setSelected] = useState<string | null>(null);
   const [search, setSearch] = useState(""); const [status, setStatus] = useState("all");
   const active = invoices.find((i) => i.id === selected);
-  const filtered = invoices.filter((i) => (status === "all" || status === i.status) && [i.file_name, i.supplier_name, i.invoice_number, i.expense_category].some((v) => v?.toLowerCase().includes(search.toLowerCase())));
+  const filtered = invoices.filter((i) => (status === "all" || status === i.status) && [i.file_name, i.supplier_name, i.invoice_number, i.expense_category, categoryLabel(i.expense_category ?? "", locale)].some((v) => v?.toLowerCase().includes(search.toLowerCase())));
   const editable = canEdit(company.role);
   const refresh = () => qc.invalidateQueries({ queryKey: ["invoices", company.id] });
 
