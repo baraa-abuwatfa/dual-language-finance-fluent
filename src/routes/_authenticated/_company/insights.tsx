@@ -4,6 +4,7 @@ import { AlertTriangle, Lightbulb, LineChart, Sparkles } from "lucide-react";
 import { EmptyState, PageError, PageHeader, PageNotFound, Panel } from "@/components/app/ui";
 import { authHead } from "@/lib/auth/head";
 import { useAppCopy, useCompany } from "@/lib/company/use-company";
+import { categoryLabel } from "@/lib/finance/categories";
 import { insights, monthKey } from "@/lib/finance/metrics";
 import { formatAmount, todayIso, transactionsQuery } from "@/lib/finance/queries";
 
@@ -16,7 +17,7 @@ export const Route = createFileRoute("/_authenticated/_company/insights")({
 });
 
 function Insights() {
-  const { t } = useAppCopy();
+  const { t, locale } = useAppCopy();
   const { company } = useCompany();
   const { data: txs } = useSuspenseQuery(transactionsQuery(company.id));
   const fmt = (v: number) => formatAmount(v, company.currency);
@@ -24,11 +25,11 @@ function Insights() {
   const found = insights(txs, monthKey(todayIso()));
   const alerts: string[] = [], recs: string[] = [], obs: string[] = [];
   for (const i of found) {
-    if (i.kind === "categorySpike") { alerts.push(t.spike(i.category, pct(i.change))); recs.push(t.spikeRec(i.category)); }
-    if (i.kind === "largeExpense") { alerts.push(`${t.large(fmt(i.tx.amount), fmt(i.average))} (${i.tx.category}, ${i.tx.occurred_on})`); recs.push(t.largeRec); }
+    if (i.kind === "categorySpike") { alerts.push(t.spike(categoryLabel(i.category, locale), pct(i.change))); recs.push(t.spikeRec(categoryLabel(i.category, locale))); }
+    if (i.kind === "largeExpense") { alerts.push(`${t.large(fmt(i.tx.amount), fmt(i.average))} (${categoryLabel(i.tx.category, locale)}, ${i.tx.occurred_on})`); recs.push(t.largeRec); }
     if (i.kind === "negativeNet") { alerts.push(t.negative(fmt(Math.abs(i.net)))); recs.push(t.negativeRec); }
     if (i.kind === "margin") obs.push(t.marginObs(pct(i.margin)));
-    if (i.kind === "topCategory") obs.push(t.topObs(i.category, pct(i.share)));
+    if (i.kind === "topCategory") obs.push(t.topObs(categoryLabel(i.category, locale), pct(i.share)));
   }
   const list = (items: string[], tone: string) => <ul className="space-y-2">{[...new Set(items)].map((s) => <li key={s} className={`rounded-lg border-s-4 bg-background p-3 text-sm leading-6 ${tone}`}>{s}</li>)}</ul>;
 

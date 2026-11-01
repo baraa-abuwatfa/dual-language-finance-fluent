@@ -7,6 +7,7 @@ import { MonthlyChart, CategoryChart } from "@/components/app/charts";
 import { Button } from "@/components/ui/button";
 import { authHead } from "@/lib/auth/head";
 import { useAppCopy, useCompany } from "@/lib/company/use-company";
+import { categoryLabel } from "@/lib/finance/categories";
 import { analyze, inRange, rangeMonths, type Range } from "@/lib/finance/intelligence";
 import { intelCopy } from "@/lib/finance/intelligence-copy";
 import { lastMonths, monthlySeries } from "@/lib/finance/metrics";
@@ -51,15 +52,15 @@ function Intelligence() {
 
   const alertText = (a: (typeof r.alerts)[number]) =>
     a.kind === "negativeNet" ? t.a.negativeNet(fmt(Math.abs(a.net)))
-    : a.kind === "unusual" ? t.a.unusual(fmt(a.item.tx.amount), a.item.tx.category, a.item.tx.occurred_on, String(a.item.ratio))
+    : a.kind === "unusual" ? t.a.unusual(fmt(a.item.tx.amount), categoryLabel(a.item.tx.category, locale), a.item.tx.occurred_on, String(a.item.ratio))
     : t.a[a.kind](fmt(a.current), fmt(a.previous), pct(a.change));
   const recText = (x: (typeof r.recs)[number]): [string, string] => {
     switch (x.kind) {
-      case "categoryGrowth": return [t.r.categoryGrowth(x.category), t.r.categoryGrowthWhy(fmt(x.previous), fmt(x.current), pct(x.change))];
-      case "concentration": return [t.r.concentration(x.category), t.r.concentrationWhy(fmt(x.amount), `${x.share.toFixed(1)}%`)];
+      case "categoryGrowth": return [t.r.categoryGrowth(categoryLabel(x.category, locale)), t.r.categoryGrowthWhy(fmt(x.previous), fmt(x.current), pct(x.change))];
+      case "concentration": return [t.r.concentration(categoryLabel(x.category, locale)), t.r.concentrationWhy(fmt(x.amount), `${x.share.toFixed(1)}%`)];
       case "cutCosts": return [t.r.cutCosts, t.r.cutCostsWhy(fmt(x.net), fmt(x.expenses))];
       case "revenueFollowUp": return [t.r.revenueFollowUp, t.r.revenueFollowUpWhy(fmt(x.previous), fmt(x.current), pct(x.change))];
-      case "verifyUnusual": return [t.r.verifyUnusual(x.item.tx.category), t.r.verifyUnusualWhy(fmt(x.item.tx.amount), fmt(x.item.average), String(x.item.samples))];
+      case "verifyUnusual": return [t.r.verifyUnusual(categoryLabel(x.item.tx.category, locale)), t.r.verifyUnusualWhy(fmt(x.item.tx.amount), fmt(x.item.average), String(x.item.samples))];
     }
   };
   const input = "h-10 rounded-md border border-input bg-card px-3 text-sm num focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring";
@@ -98,9 +99,9 @@ function Intelligence() {
       <div className="grid gap-4 lg:grid-cols-2">
         <Panel title={t.categories}>{r.categories.length ? <>
           <CategoryChart data={r.categories} currency={company.currency} />
-          <ul className="mt-4 space-y-1.5 text-sm">{r.categories.map((c) => <li key={c.category} className="flex justify-between gap-3 border-b border-border/60 pb-1.5"><span className="truncate">{c.category}</span><span className="num shrink-0 text-muted-foreground">{fmt(c.amount)} · {pct(c.change)}</span></li>)}</ul>
+          <ul className="mt-4 space-y-1.5 text-sm">{r.categories.map((c) => <li key={c.category} className="flex justify-between gap-3 border-b border-border/60 pb-1.5"><span className="truncate">{categoryLabel(c.category, locale)}</span><span className="num shrink-0 text-muted-foreground">{fmt(c.amount)} · {pct(c.change)}</span></li>)}</ul>
         </> : <EmptyState text={app.categoryEmpty} />}</Panel>
-        <Panel title={t.unusual}>{r.unusual.length ? <ul className="space-y-2">{r.unusual.map((u) => <li key={u.tx.id} className="rounded-lg border-s-4 border-negative bg-background p-3 text-sm leading-6">{t.a.unusual(fmt(u.tx.amount), u.tx.category, u.tx.occurred_on, String(u.ratio))}<span className="block text-xs text-muted-foreground">{t.r.verifyUnusualWhy(fmt(u.tx.amount), fmt(u.average), String(u.samples))}</span></li>)}</ul> : <p className="text-sm text-muted-foreground">{t.unusualNone}</p>}</Panel>
+        <Panel title={t.unusual}>{r.unusual.length ? <ul className="space-y-2">{r.unusual.map((u) => <li key={u.tx.id} className="rounded-lg border-s-4 border-negative bg-background p-3 text-sm leading-6">{t.a.unusual(fmt(u.tx.amount), categoryLabel(u.tx.category, locale), u.tx.occurred_on, String(u.ratio))}<span className="block text-xs text-muted-foreground">{t.r.verifyUnusualWhy(fmt(u.tx.amount), fmt(u.average), String(u.samples))}</span></li>)}</ul> : <p className="text-sm text-muted-foreground">{t.unusualNone}</p>}</Panel>
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
         <Panel title={t.alerts} action={<AlertTriangle className="size-4 text-negative" aria-hidden="true" />}>{r.alerts.length ? <ul className="space-y-2">{r.alerts.map((a, i) => <li key={i} className="rounded-lg border-s-4 border-negative bg-background p-3 text-sm leading-6">{alertText(a)}</li>)}</ul> : <p className="text-sm text-muted-foreground">{t.alertsNone}</p>}</Panel>
