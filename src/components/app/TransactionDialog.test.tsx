@@ -31,6 +31,20 @@ function mount(locale: "en" | "ar", type: "income" | "expense", initial?: Tx) {
 }
 
 describe("Transaction category persistence", () => {
+  it("clears an incompatible selection when the transaction type changes", async () => {
+    mount("en", "income");
+    fireEvent.click(screen.getByRole("combobox"));
+    fireEvent.click(await screen.findByRole("option", { name: "Product Sales" }));
+    fireEvent.click(screen.getByRole("radio", { name: "Expense" }));
+    fireEvent.change(document.getElementById("tx-amount") as HTMLInputElement, { target: { value: "50" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    expect(db.insert).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("combobox"));
+    expect(screen.queryByRole("option", { name: "Product Sales" })).toBeNull();
+    fireEvent.click(await screen.findByRole("option", { name: "Rent" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    await waitFor(() => expect(db.insert).toHaveBeenCalledWith(expect.objectContaining({ category: "Rent", type: "expense" })));
+  });
   it.each(["en", "ar"] as const)("creates income and expense with stable references in %s", async (locale) => {
     mount(locale, "income");
     fireEvent.change(document.getElementById("tx-amount") as HTMLInputElement, { target: { value: "250" } });
