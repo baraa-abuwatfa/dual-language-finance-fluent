@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { authHead } from "@/lib/auth/head";
 import { useAppCopy, useCompany } from "@/lib/company/use-company";
 import { categoryBreakdown, lastMonths, monthKey, monthlySeries, totals } from "@/lib/finance/metrics";
-import { formatAmount, todayIso, transactionsQuery } from "@/lib/finance/queries";
+import { formatAmount, transactionsQuery } from "@/lib/finance/queries";
+import { inRange } from "@/lib/finance/intelligence";
 import { categoryLabel } from "@/lib/finance/categories";
 
 export const Route = createFileRoute("/_authenticated/_company/dashboard")({
@@ -22,8 +23,10 @@ function Dashboard() {
   const { t, locale } = useAppCopy();
   const { company } = useCompany();
   const { data: txs } = useSuspenseQuery(transactionsQuery(company.id));
-  const month = monthKey(todayIso());
-  const cur = totals(txs.filter((x) => monthKey(x.occurred_on) === month));
+  // Current calendar month in the user's local time (same from/to range rule as Financial Intelligence).
+  const now = new Date();
+  const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const cur = totals(inRange(txs, { from: `${month}-01`, to: `${month}-31` }));
   const fmt = (v: number) => formatAmount(v, company.currency);
   const has = txs.length > 0;
   const cap = has ? t.thisMonth : t.noData;
