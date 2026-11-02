@@ -69,6 +69,26 @@ const en = {
     verifyUnusualWhy: ((amt, avg, n) => `${amt} versus an average of ${avg} across ${n} earlier “same category” expenses.`) as F,
     verifyUnusualAction: ((c) => `Verify and document the unusual “${c}” expense.`) as F,
   },
+  // Legacy keys consumed by the Reports PDF export (report-pdf.ts). Keep in sync with the sections above.
+  recsNone: "No recommendations — nothing in this period meets a rule.",
+  a: {
+    negativeNet: ((n) => `Expenses exceeded revenue by ${n} in this period.`) as F,
+    expenseGrowth: ((c, p, ch) => `Expenses rose ${ch} (${p} → ${c}) compared with the previous period.`) as F,
+    revenueDrop: ((c, p, ch) => `Revenue fell ${ch} (${p} → ${c}) compared with the previous period.`) as F,
+    unusual: ((amt, cat, date, r) => `${amt} in “${cat}” on ${date} is ${r}× its usual amount.`) as F,
+  },
+  r: {
+    categoryGrowth: ((c) => `Review “${c}” spending and confirm the increase was planned.`) as F,
+    categoryGrowthWhy: ((p, c, ch) => `It grew ${ch}, from ${p} to ${c}, versus the previous period.`) as F,
+    concentration: ((c) => `Look for savings or alternative suppliers in “${c}”.`) as F,
+    concentrationWhy: ((a, s) => `It accounts for ${s} of all expenses in this period (${a}).`) as F,
+    cutCosts: "Postpone non-essential spending until revenue covers expenses.",
+    cutCostsWhy: ((n, e) => `Net result is ${n} on total expenses of ${e}.`) as F,
+    revenueFollowUp: "Follow up on income sources and outstanding customer payments.",
+    revenueFollowUpWhy: ((p, c, ch) => `Revenue changed ${ch}, from ${p} to ${c}.`) as F,
+    verifyUnusual: ((c) => `Verify and document the unusual “${c}” expense.`) as F,
+    verifyUnusualWhy: ((amt, avg, n) => `${amt} versus an average of ${avg} across ${n} earlier “same category” expenses.`) as F,
+  },
   missingTitle: "What's missing",
   missing: {
     noData: "No transactions are recorded in the selected range. Choose a wider range or add transactions.",
@@ -148,6 +168,26 @@ const ar: Copy = {
     verifyUnusual: (c) => `رُصد مصروف غير معتاد في «${c}».`,
     verifyUnusualWhy: (amt, avg, n) => `${amt} مقابل متوسط ${avg} عبر ${n} مصروفات سابقة في الفئة نفسها.`,
     verifyUnusualAction: (c) => `تحقّق من مصروف «${c}» غير المعتاد ووثّقه.`,
+  },
+  // مفاتيح قديمة يستخدمها تصدير PDF في صفحة التقارير (report-pdf.ts). تُبقى متزامنة مع الأقسام أعلاه.
+  recsNone: "لا توجد توصيات — لا شيء في هذه الفترة يستوفي أي قاعدة.",
+  a: {
+    negativeNet: (n) => `تجاوزت المصروفات الإيرادات بمقدار ${n} في هذه الفترة.`,
+    expenseGrowth: (c, p, ch) => `ارتفعت المصروفات بنسبة ${ch} (من ${p} إلى ${c}) مقارنة بالفترة السابقة.`,
+    revenueDrop: (c, p, ch) => `انخفضت الإيرادات بنسبة ${ch} (من ${p} إلى ${c}) مقارنة بالفترة السابقة.`,
+    unusual: (amt, cat, date, r) => `مبلغ ${amt} في «${cat}» بتاريخ ${date} يعادل ${r}× قيمته المعتادة.`,
+  },
+  r: {
+    categoryGrowth: (c) => `راجع الإنفاق على «${c}» وتأكد من أن الزيادة مخطط لها.`,
+    categoryGrowthWhy: (p, c, ch) => `ارتفع بنسبة ${ch}، من ${p} إلى ${c}، مقارنة بالفترة السابقة.`,
+    concentration: (c) => `ابحث عن وفورات أو موردين بديلين في «${c}».`,
+    concentrationWhy: (a, s) => `تمثّل ${s} من إجمالي مصروفات هذه الفترة (${a}).`,
+    cutCosts: "أجّل الإنفاق غير الضروري حتى تغطي الإيرادات المصروفات.",
+    cutCostsWhy: (n, e) => `صافي النتيجة ${n} مقابل إجمالي مصروفات ${e}.`,
+    revenueFollowUp: "تابع مصادر الدخل والمدفوعات المستحقة من العملاء.",
+    revenueFollowUpWhy: (p, c, ch) => `تغيرت الإيرادات بنسبة ${ch}، من ${p} إلى ${c}.`,
+    verifyUnusual: (c) => `تحقّق من مصروف «${c}» غير المعتاد ووثّقه.`,
+    verifyUnusualWhy: (amt, avg, n) => `${amt} مقابل متوسط ${avg} عبر ${n} مصروفات سابقة في الفئة نفسها.`,
   },
   missingTitle: "البيانات الناقصة",
   missing: {

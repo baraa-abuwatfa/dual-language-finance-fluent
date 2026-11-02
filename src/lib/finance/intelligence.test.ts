@@ -30,8 +30,8 @@ describe("financial intelligence", () => {
     expect(h.status).toBe("healthy");
     expect(h.reasons).toContainEqual({ key: "profitable", amount: 600 });
   });
-  it("rates a loss-making period as critical", () => {
-    const r = analyze([tx("a", "income", 100, "Sales", "2026-10-05"), tx("b", "expense", 500, "Rent", "2026-10-06")], range);
+  it("rates a loss-making period with fast-growing expenses as critical", () => {
+    const r = analyze([tx("p", "expense", 100, "Rent", "2026-09-10"), tx("a", "income", 100, "Sales", "2026-10-05"), tx("b", "expense", 500, "Rent", "2026-10-06")], range);
     const h = assessHealth(r);
     expect(h.status).toBe("critical");
     expect(h.reasons).toContainEqual({ key: "negativeNet", amount: -400 });
@@ -45,7 +45,7 @@ describe("financial intelligence", () => {
   it("flags growth risk only with previous-period data", () => {
     const noPrev = analyze([tx("a", "expense", 100, "Rent", "2026-10-06"), tx("b", "expense", 100, "Ads", "2026-10-07")], range);
     expect(spendingRisks(noPrev).every((k) => k.kind === "concentration")).toBe(true);
-    const grown = analyze([tx("a", "expense", 50, "Rent", "2026-09-06"), tx("b", "expense", 50, "Ads", "2026-09-07"), tx("c", "expense", 150, "Rent", "2026-10-06"), tx("d", "expense", 50, "Ads", "2026-10-07")], range);
+    const grown = analyze([tx("a", "expense", 50, "Rent", "2026-09-06"), tx("b", "expense", 600, "Ads", "2026-09-07"), tx("c", "expense", 150, "Rent", "2026-10-06"), tx("d", "expense", 600, "Ads", "2026-10-07")], range);
     expect(spendingRisks(grown)).toContainEqual(expect.objectContaining({ kind: "growth", category: "Rent", change: 200 }));
   });
   it("ranks loss and revenue-drop recommendations as high priority", () => {
