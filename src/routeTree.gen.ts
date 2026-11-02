@@ -26,6 +26,8 @@ import { Route as AuthenticatedCompanyInvoicesRouteImport } from './routes/_auth
 import { Route as AuthenticatedCompanyReportsRouteImport } from './routes/_authenticated/_company/reports'
 import { Route as AuthenticatedCompanySettingsRouteImport } from './routes/_authenticated/_company/settings'
 import { Route as AuthenticatedCompanyTransactionsRouteImport } from './routes/_authenticated/_company/transactions'
+import { Route as ApiPublicReportsCompanyRouteImport } from './routes/api/public/reports/company'
+import { Route as ApiPublicReportsTransactionsRouteImport } from './routes/api/public/reports/transactions'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -120,6 +122,17 @@ const AuthenticatedCompanyTransactionsRoute =
     path: '/transactions',
     getParentRoute: () => AuthenticatedCompanyRouteRoute,
   } as any)
+const ApiPublicReportsCompanyRoute = ApiPublicReportsCompanyRouteImport.update({
+  id: '/api/public/reports/company',
+  path: '/api/public/reports/company',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicReportsTransactionsRoute =
+  ApiPublicReportsTransactionsRouteImport.update({
+    id: '/api/public/reports/transactions',
+    path: '/api/public/reports/transactions',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -137,6 +150,8 @@ export interface FileRoutesByFullPath {
   '/reports': typeof AuthenticatedCompanyReportsRoute
   '/settings': typeof AuthenticatedCompanySettingsRoute
   '/transactions': typeof AuthenticatedCompanyTransactionsRoute
+  '/api/public/reports/company': typeof ApiPublicReportsCompanyRoute
+  '/api/public/reports/transactions': typeof ApiPublicReportsTransactionsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -154,6 +169,8 @@ export interface FileRoutesByTo {
   '/reports': typeof AuthenticatedCompanyReportsRoute
   '/settings': typeof AuthenticatedCompanySettingsRoute
   '/transactions': typeof AuthenticatedCompanyTransactionsRoute
+  '/api/public/reports/company': typeof ApiPublicReportsCompanyRoute
+  '/api/public/reports/transactions': typeof ApiPublicReportsTransactionsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -174,6 +191,8 @@ export interface FileRoutesById {
   '/_authenticated/_company/reports': typeof AuthenticatedCompanyReportsRoute
   '/_authenticated/_company/settings': typeof AuthenticatedCompanySettingsRoute
   '/_authenticated/_company/transactions': typeof AuthenticatedCompanyTransactionsRoute
+  '/api/public/reports/company': typeof ApiPublicReportsCompanyRoute
+  '/api/public/reports/transactions': typeof ApiPublicReportsTransactionsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -193,6 +212,8 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/transactions'
+    | '/api/public/reports/company'
+    | '/api/public/reports/transactions'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -210,6 +231,8 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/transactions'
+    | '/api/public/reports/company'
+    | '/api/public/reports/transactions'
   id:
     | '__root__'
     | '/'
@@ -229,6 +252,8 @@ export interface FileRouteTypes {
     | '/_authenticated/_company/reports'
     | '/_authenticated/_company/settings'
     | '/_authenticated/_company/transactions'
+    | '/api/public/reports/company'
+    | '/api/public/reports/transactions'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -238,6 +263,8 @@ export interface RootRouteChildren {
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
+  ApiPublicReportsCompanyRoute: typeof ApiPublicReportsCompanyRoute
+  ApiPublicReportsTransactionsRoute: typeof ApiPublicReportsTransactionsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -361,6 +388,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCompanyTransactionsRouteImport
       parentRoute: typeof AuthenticatedCompanyRouteRoute
     }
+    '/api/public/reports/company': {
+      id: '/api/public/reports/company'
+      path: '/api/public/reports/company'
+      fullPath: '/api/public/reports/company'
+      preLoaderRoute: typeof ApiPublicReportsCompanyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/reports/transactions': {
+      id: '/api/public/reports/transactions'
+      path: '/api/public/reports/transactions'
+      fullPath: '/api/public/reports/transactions'
+      preLoaderRoute: typeof ApiPublicReportsTransactionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -416,6 +457,8 @@ const rootRouteChildren: RootRouteChildren = {
   ForgotPasswordRoute: ForgotPasswordRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
+  ApiPublicReportsCompanyRoute: ApiPublicReportsCompanyRoute,
+  ApiPublicReportsTransactionsRoute: ApiPublicReportsTransactionsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
