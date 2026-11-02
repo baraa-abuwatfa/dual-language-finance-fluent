@@ -1,7 +1,9 @@
 # Professional financial reporting
-- [ ] Extend existing Reports selection, preserving annual summaries and monthly tables.
-- [ ] Generate bilingual multi-page PDF with charts, statements and reused evidence-based intelligence.
-- [ ] Test period calculations and download output; disclose unavailable live account verification.
+- [x] Extend existing Reports selection, preserving annual summaries and monthly tables.
+- [x] Generate bilingual multi-page PDF with charts, statements and reused evidence-based intelligence.
+- [x] Verify calendar calculations (11 targeted tests passed) and actual EN annual / AR monthly PDF downloads with isolated fixtures; inspected rendered Arabic text, KPI figures and charts.
+- [ ] Verify selected-company reports against live signed-in records: unavailable external account session.
+- [x] Advise remixed-project next step: test a monthly download against recorded company transactions.
 
 # Standardized categories
 - [x] Add fixed bilingual searchable transaction and invoice selectors without changing historical values; reuse existing company-scoped text fields without a migration.
