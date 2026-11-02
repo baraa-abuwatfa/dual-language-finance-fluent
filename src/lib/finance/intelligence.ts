@@ -98,14 +98,20 @@ export type Health = { status: HealthStatus; score: number; reasons: HealthReaso
 
 /**
  * Overall financial condition from the same deterministic analysis.
- * Never returns a status without data: an empty range is "insufficient".
+ * Documented weights: start at 100; net loss −45; expenses growing 20%+
+ * faster than revenue −20; revenue drop of 20%+ −20; each statistically
+ * unusual expense −5 (max −10); one category above 40% of expenses −10.
+ * Healthy ≥ 75, Needs Attention ≥ 40, below that Critical.
+ * Missing data never deducts points: an empty range is "insufficient",
+ * and metrics that can't be computed (no previous period, thin history)
+ * are simply not scored.
  */
 export function assessHealth(a: Analysis): Health {
   if (a.missing.includes("noData")) return { status: "insufficient", score: 0, reasons: [] };
   let score = 100;
   const reasons: HealthReason[] = [];
   if (a.now.net < 0) { score -= 45; reasons.push({ key: "negativeNet", amount: a.now.net }); }
-  if (a.expChange !== null && a.expChange >= 20) { score -= 20; reasons.push({ key: "expenseGrowth", pct: a.expChange }); }
+  if (a.expChange !== null && a.expChange >= 20 && (a.revChange === null || a.expChange > a.revChange)) { score -= 20; reasons.push({ key: "expenseGrowth", pct: a.expChange }); }
   if (a.revChange !== null && a.revChange <= -20) { score -= 20; reasons.push({ key: "revenueDrop", pct: a.revChange }); }
   if (a.unusual.length > 0) { score -= 5 * Math.min(2, a.unusual.length); reasons.push({ key: "unusual", count: a.unusual.length }); }
   const top = a.categories[0];
