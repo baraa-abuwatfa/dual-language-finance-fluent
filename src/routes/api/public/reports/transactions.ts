@@ -18,13 +18,15 @@ export const Route = createFileRoute("/api/public/reports/transactions")({
         if (authError) return authError;
 
         const body = await readJsonBody(request);
-        if (!body || !isUuid(body.company_id)) {
+        if (!body || !isUuid(body["company_id"])) {
           return errorJson("company_id must be a valid UUID", 400);
         }
-        if (!isIsoDate(body.start_date) || !isIsoDate(body.end_date)) {
+        if (!isIsoDate(body["start_date"]) || !isIsoDate(body["end_date"])) {
           return errorJson("start_date and end_date must be YYYY-MM-DD", 400);
         }
-        if (body.start_date > body.end_date) {
+        const startDate = body["start_date"] as string;
+        const endDate = body["end_date"] as string;
+        if (startDate > endDate) {
           return errorJson("start_date must not be after end_date", 400);
         }
         const page = Number.isInteger(body["page"]) && (body["page"] as number) >= 1 ? (body["page"] as number) : 1;
