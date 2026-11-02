@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, Outlet } from "@tanstack/react-router";
-import { BarChart3, BrainCircuit, FileText, LayoutDashboard, LogOut, Menu, Receipt, Settings, Sparkles, X } from "lucide-react";
+import { BarChart3, BrainCircuit, FileText, LayoutDashboard, LogOut, Menu, MessageSquareText, Receipt, Settings, X } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { LanguageSwitcher } from "@/components/landing/LanguageSwitcher";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ const NAV = [
   { to: "/transactions", key: "transactions", icon: Receipt },
   { to: "/invoices", key: "invoices", icon: FileText },
   { to: "/reports", key: "reports", icon: BarChart3 },
-  { to: "/insights", key: "insights", icon: Sparkles },
+  { to: "/insights", key: "insights", icon: MessageSquareText },
   { to: "/intelligence", key: "intelligence", icon: BrainCircuit },
   { to: "/settings", key: "settings", icon: Settings },
 ] as const;

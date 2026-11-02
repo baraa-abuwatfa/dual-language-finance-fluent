@@ -1,7 +1,7 @@
 const en = {
   setupTitle: "Set up your company", setupDescription: "Add your company name and primary currency to open your dashboard.", companyName: "Company name", currency: "Primary currency", create: "Create company", processing: "Please wait…",
   required: "Enter a company name (at least 2 characters).", tooLong: "This name is too long.", failed: "We couldn’t complete this action. Please try again.",
-  nav: { dashboard: "Dashboard", transactions: "Transactions", invoices: "Invoices", reports: "Reports", insights: "AI Insights", intelligence: "Financial Intelligence", settings: "Settings" },
+  nav: { dashboard: "Dashboard", transactions: "Transactions", invoices: "Invoices", reports: "Reports", insights: "AI Financial Assistant", intelligence: "Financial Intelligence", settings: "Settings" },
   menu: "Menu", closeMenu: "Close menu", logout: "Sign out", account: "Account", switchCompany: "Switch company",
   revenue: "Revenue", expenses: "Expenses", netProfit: "Net Profit", cashFlow: "Cash Flow", thisMonth: "This month", allTime: "Net cash, all records", noData: "No records yet",
   overview: "Financial overview", monthly: "Monthly revenue & expenses", byCategory: "Expenses by category", recent: "Recent transactions", viewAll: "View all",
@@ -27,7 +27,7 @@ type Copy = typeof en;
 const ar: Copy = {
   setupTitle: "إعداد شركتك", setupDescription: "أضف اسم شركتك وعملتها الأساسية لفتح لوحة التحكم.", companyName: "اسم الشركة", currency: "العملة الأساسية", create: "إنشاء الشركة", processing: "يرجى الانتظار…",
   required: "أدخل اسم الشركة (حرفان على الأقل).", tooLong: "الاسم أطول من المسموح.", failed: "تعذّر إكمال هذا الإجراء. يرجى المحاولة مجددًا.",
-  nav: { dashboard: "لوحة التحكم", transactions: "المعاملات", invoices: "الفواتير", reports: "التقارير", insights: "رؤى الذكاء الاصطناعي", intelligence: "الذكاء المالي", settings: "الإعدادات" },
+  nav: { dashboard: "لوحة التحكم", transactions: "المعاملات", invoices: "الفواتير", reports: "التقارير", insights: "المساعد المالي الذكي", intelligence: "الذكاء المالي", settings: "الإعدادات" },
   menu: "القائمة", closeMenu: "إغلاق القائمة", logout: "تسجيل الخروج", account: "الحساب", switchCompany: "تبديل الشركة",
   revenue: "الإيرادات", expenses: "المصروفات", netProfit: "صافي الربح", cashFlow: "التدفق النقدي", thisMonth: "هذا الشهر", allTime: "صافي النقد لجميع السجلات", noData: "لا توجد سجلات بعد",
   overview: "نظرة مالية عامة", monthly: "الإيرادات والمصروفات الشهرية", byCategory: "المصروفات حسب الفئة", recent: "أحدث المعاملات", viewAll: "عرض الكل",
