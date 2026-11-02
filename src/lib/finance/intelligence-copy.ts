@@ -39,6 +39,7 @@ const en = {
   unusual: {
     title: "Unusual Expense Detection",
     none: "No expense is statistically unusual compared with its category's history.",
+    insufficient: "Insufficient historical data to reliably detect unusual expenses. This is not a claim that none exist — detection needs at least 3 earlier expenses in a category.",
     thin: "Historical data is still thin, so only clearly abnormal amounts are flagged — a simple increase is not treated as unusual.",
     item: ((amt, cat, date, r) => `${amt} in “${cat}” on ${date} is ${r}× its usual amount.`) as F,
     why: ((amt, avg, n) => `Flagged because ${amt} is both at least double and statistically above the average of ${avg} across ${n} earlier expenses in the same category.`) as F,
@@ -55,6 +56,7 @@ const en = {
     title: "Decision Support & Recommendations",
     none: "No recommendations — nothing in this period meets a rule.",
     priority: { high: "High priority", medium: "Medium priority" },
+    priorityWhy: { high: "High priority because it directly affects whether the company stays profitable this period.", medium: "Medium priority because it is a risk to monitor rather than an immediate threat to profitability." },
     issue: "Issue", evidence: "Evidence", action: "Recommended action",
     categoryGrowth: ((c) => `Spending on “${c}” is growing.`) as F,
     categoryGrowthWhy: ((p, c, ch) => `It grew ${ch}, from ${p} to ${c}, versus the previous period.`) as F,
