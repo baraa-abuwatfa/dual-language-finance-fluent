@@ -1,3 +1,8 @@
+# Professional financial reporting
+- [ ] Extend existing Reports selection, preserving annual summaries and monthly tables.
+- [ ] Generate bilingual multi-page PDF with charts, statements and reused evidence-based intelligence.
+- [ ] Test period calculations and download output; disclose unavailable live account verification.
+
 # Standardized categories
 - [x] Add fixed bilingual searchable transaction and invoice selectors without changing historical values; reuse existing company-scoped text fields without a migration.
 - [x] Localize stored category references in financial views; 41 targeted tests passed, including English/Arabic income and expense create/edit form requests, legacy preservation, and invoice approval regressions.
