@@ -30,7 +30,9 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
 }
 
 function createSupabaseAdminClient() {
-  const SUPABASE_URL = process.env['SUPABASE_URL'];
+  // Fallback to the same public project URL the browser client uses, because
+  // server env vars were not carried over when this project was transferred.
+  const SUPABASE_URL = process.env['SUPABASE_URL'] || "https://tpjqwnfxwkhsdzpkylak.supabase.co";
   const SUPABASE_SERVICE_ROLE_KEY = process.env['SUPABASE_SERVICE_ROLE_KEY'];
 
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
