@@ -48,6 +48,33 @@ describe("financial intelligence", () => {
     const grown = analyze([tx("a", "expense", 50, "Rent", "2026-09-06"), tx("b", "expense", 600, "Ads", "2026-09-07"), tx("c", "expense", 150, "Rent", "2026-10-06"), tx("d", "expense", 600, "Ads", "2026-10-07")], range);
     expect(spendingRisks(grown)).toContainEqual(expect.objectContaining({ kind: "growth", category: "Rent", change: 200 }));
   });
+  it("computes net profit margin and returns null when revenue is zero", () => {
+    const r = analyze([tx("a", "income", 1000, "Sales", "2026-10-05"), tx("b", "expense", 400, "Rent", "2026-10-06")], range);
+    expect(r.margin).toBe(60);
+    expect(analyze([tx("b", "expense", 400, "Rent", "2026-10-06")], range).margin).toBeNull();
+  });
+  it("does not treat expense growth as a warning when revenue grows faster", () => {
+    const r = analyze([
+      tx("p1", "income", 100, "Sales", "2026-09-05"), tx("p2", "expense", 100, "Rent", "2026-09-06"),
+      tx("c1", "income", 310, "Sales", "2026-10-05"), tx("c2", "expense", 180.5, "Rent", "2026-10-06"),
+    ], range);
+    expect(r.revChange).toBe(210);
+    expect(r.expChange).toBe(80.5);
+    expect(r.alerts.some((a) => a.kind === "expenseGrowth")).toBe(false);
+    expect(assessHealth(r).reasons.some((x) => x.key === "expenseGrowth")).toBe(false);
+  });
+  it("still warns about expense growth when revenue cannot be compared", () => {
+    const r = analyze([tx("p", "expense", 100, "Rent", "2026-09-06"), tx("c", "expense", 200, "Rent", "2026-10-06")], range);
+    expect(r.alerts.some((a) => a.kind === "expenseGrowth")).toBe(true);
+  });
+  it("does not duplicate a category-growth recommendation already covered by concentration", () => {
+    const r = analyze([
+      tx("p1", "expense", 100, "Rent", "2026-09-05"), tx("p2", "expense", 100, "Ads", "2026-09-06"),
+      tx("c1", "expense", 300, "Rent", "2026-10-05"), tx("c2", "expense", 100, "Ads", "2026-10-06"),
+    ], range);
+    expect(r.recs.some((x) => x.kind === "concentration" && x.category === "Rent")).toBe(true);
+    expect(r.recs.some((x) => x.kind === "categoryGrowth" && x.category === "Rent")).toBe(false);
+  });
   it("ranks loss and revenue-drop recommendations as high priority", () => {
     expect(recPriority({ kind: "cutCosts", net: -1, expenses: 2 })).toBe("high");
     expect(recPriority({ kind: "revenueFollowUp", current: 1, previous: 2, change: -50 })).toBe("high");
