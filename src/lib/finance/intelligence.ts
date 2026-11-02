@@ -31,8 +31,8 @@ export type Rec =
   | { kind: "verifyUnusual"; item: Unusual };
 export type Missing = "noData" | "noPrevious" | "noHistory" | "noRevenue";
 
-export function analyze(txs: Tx[], range: Range) {
-  const prevRange = previousRange(range);
+export function analyze(txs: Tx[], range: Range, comparisonRange?: Range) {
+  const prevRange = comparisonRange ?? previousRange(range);
   const cur = inRange(txs, range), prev = inRange(txs, prevRange);
   const now = totals(cur), before = totals(prev);
   const prevCats = new Map(categoryBreakdown(prev).map((c) => [c.category, c.amount]));
