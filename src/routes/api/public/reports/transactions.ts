@@ -57,8 +57,8 @@ export const Route = createFileRoute("/api/public/reports/transactions")({
           .from("transactions")
           .select("id, company_id, type, amount, occurred_on, category, description", { count: "exact" })
           .eq("company_id", companyId)
-          .gte("occurred_on", body["start_date"] as string)
-          .lte("occurred_on", body["end_date"] as string)
+          .gte("occurred_on", startDate)
+          .lte("occurred_on", endDate)
           .order("occurred_on", { ascending: true })
           .order("id", { ascending: true })
           .range(from, to);
