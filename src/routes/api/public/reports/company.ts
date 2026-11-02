@@ -13,10 +13,10 @@ export const Route = createFileRoute("/api/public/reports/company")({
         if (authError) return authError;
 
         const body = await readJsonBody(request);
-        if (!body || !isUuid(body.company_id)) {
+        if (!body || !isUuid(body["company_id"])) {
           return errorJson("company_id must be a valid UUID", 400);
         }
-        const companyId = body.company_id;
+        const companyId = body["company_id"] as string;
 
         // Service role is required here: the owner email lives in auth.users,
         // which is never readable through RLS-scoped clients.
