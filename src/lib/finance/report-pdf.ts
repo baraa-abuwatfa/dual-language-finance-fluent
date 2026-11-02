@@ -16,7 +16,7 @@ export async function generateReportPdf(report: FinancialReport, company: Compan
   await font.load(); document.fonts.add(font); await document.fonts.ready;
   const t = reportCopy[locale], intel = intelCopy[locale], rtl = locale === "ar";
   const fmt = (v: number) => new Intl.NumberFormat(locale === "ar" ? "ar-u-nu-latn" : "en-US", { style: "currency", currency: company.currency, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v);
-  const pct = (v: number | null) => v === null ? "—" : `${v.toFixed(1)}%`;
+  const pct = (v: number | null) => v === null ? "—" : `\u2066${v.toFixed(1)}%\u2069`;
   const period = report.selection.type === "annual" ? String(report.selection.year) : monthLabel(report.range.from.slice(0, 7), locale);
   const title = report.selection.type === "annual" ? t.annual : t.monthly;
   const generated = new Intl.DateTimeFormat(locale === "ar" ? "ar-u-nu-latn" : "en-US", { dateStyle: "long" }).format(new Date());
@@ -30,7 +30,7 @@ export async function generateReportPdf(report: FinancialReport, company: Compan
   const pages: HTMLCanvasElement[] = [];
   let ctx: CanvasRenderingContext2D, y = 0;
   const text = (s: string, x: number, yy: number, size = 14, color = colors.navy, align: CanvasTextAlign = rtl ? "right" : "left") => {
-    ctx.font = `${size}px "CFO Report"`; ctx.fillStyle = color; ctx.textAlign = align; ctx.textBaseline = "top"; ctx.direction = rtl ? "rtl" : "ltr"; ctx.fillText(s, x, yy);
+    ctx.font = `${size}px "CFO Report"`; ctx.fillStyle = color; ctx.textAlign = align; ctx.textBaseline = "top"; ctx.direction = rtl && !/^[\d$€£−-]/.test(s.replace(/[\u200e\u200f\u2066-\u2069]/g, "")) ? "rtl" : "ltr"; ctx.fillText(s, x, yy);
   };
   const rect = (x: number, yy: number, w: number, h: number, color: string) => { ctx.fillStyle = color; ctx.fillRect(x, yy, w, h); };
   const start = (section?: string) => {
@@ -83,7 +83,7 @@ export async function generateReportPdf(report: FinancialReport, company: Compan
     const step = (right - left) / points.length;
     points.forEach((p, i) => {
       const x = left + step * (i + 0.5);
-      if (kind === "bars") { const w = step * 0.3; rect(x - w, py(p.revenue), w, Math.max(1, py(0) - py(p.revenue)), colors.navy); rect(x + 2, py(p.expenses), w, Math.max(1, py(0) - py(p.expenses)), colors.steel); }
+      if (kind === "bars") { const w = step * 0.3; if (p.revenue) rect(x - w, py(p.revenue), w, py(0) - py(p.revenue), colors.navy); if (p.expenses) rect(x + 2, py(p.expenses), w, py(0) - py(p.expenses), colors.steel); }
       else { const next = points[i + 1]; if (next) { ctx.beginPath(); ctx.strokeStyle = colors.steel; ctx.lineWidth = 3; ctx.moveTo(x, py(p.net)); ctx.lineTo(x + step, py(next.net)); ctx.stroke(); } ctx.beginPath(); ctx.fillStyle = p.net < 0 ? colors.negative : colors.navy; ctx.arc(x, py(p.net), 3, 0, Math.PI * 2); ctx.fill(); }
       if (points.length <= 12 || i % 5 === 0 || i === points.length - 1) text(report.selection.type === "annual" ? monthLabel(p.key, locale).replace(/\s?\d{2}$/, "") : p.key.slice(-2), x, bottom + 14, 11, colors.muted, "center");
     });
