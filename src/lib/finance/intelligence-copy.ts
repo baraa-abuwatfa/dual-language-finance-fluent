@@ -35,6 +35,7 @@ const en = {
     netPositive: ((n) => `The period closed profitable with a net result of ${n}.`) as F,
     netNegative: ((n) => `The period closed at a loss of ${n} — expenses exceeded revenue.`) as F,
     margin: ((m) => `Net profit margin is ${m} of revenue — the share of income kept after all expenses.`) as F,
+    noRevenueCompare: "Revenue growth cannot be compared because the previous period had no recorded revenue.",
   },
   unusual: {
     title: "Unusual Expense Detection",
@@ -63,7 +64,7 @@ const en = {
     categoryGrowthAction: ((c) => `Review “${c}” spending and confirm the increase was planned.`) as F,
     concentration: ((c) => `Expenses are concentrated in “${c}”.`) as F,
     concentrationWhy: ((a, s) => `It accounts for ${s} of all expenses in this period (${a}).`) as F,
-    concentrationAction: ((c) => `Look for savings or alternative suppliers in “${c}”.`) as F,
+    concentrationAction: ((c) => `Monitor this concentration and review the expense plan for “${c}”.`) as F,
     cutCosts: "The period closed at a loss.",
     cutCostsWhy: ((n, e) => `Net result is ${n} on total expenses of ${e}.`) as F,
     cutCostsAction: "Postpone non-essential spending until revenue covers expenses.",
@@ -85,7 +86,7 @@ const en = {
   r: {
     categoryGrowth: ((c) => `Review “${c}” spending and confirm the increase was planned.`) as F,
     categoryGrowthWhy: ((p, c, ch) => `It grew ${ch}, from ${p} to ${c}, versus the previous period.`) as F,
-    concentration: ((c) => `Look for savings or alternative suppliers in “${c}”.`) as F,
+    concentration: ((c) => `Monitor this concentration and review the expense plan for “${c}”.`) as F,
     concentrationWhy: ((a, s) => `It accounts for ${s} of all expenses in this period (${a}).`) as F,
     cutCosts: "Postpone non-essential spending until revenue covers expenses.",
     cutCostsWhy: ((n, e) => `Net result is ${n} on total expenses of ${e}.`) as F,
@@ -140,6 +141,7 @@ const ar: Copy = {
     netPositive: (n) => `أُغلقت الفترة بربحية بلغ صافيها ${n}.`,
     netNegative: (n) => `أُغلقت الفترة بخسارة قدرها ${n} — تجاوزت المصروفات الإيرادات.`,
     margin: (m) => `هامش صافي الربح ${m} من الإيرادات — حصة الدخل المتبقية بعد جميع المصروفات.`,
+    noRevenueCompare: "لا يمكن مقارنة نمو الإيرادات لأن الفترة السابقة لم تسجل أي إيرادات.",
   },
   unusual: {
     title: "كشف المصروفات غير المعتادة",
@@ -168,7 +170,7 @@ const ar: Copy = {
     categoryGrowthAction: (c) => `راجع الإنفاق على «${c}» وتأكد من أن الزيادة مخطط لها.`,
     concentration: (c) => `المصروفات مركّزة في «${c}».`,
     concentrationWhy: (a, s) => `تمثّل ${s} من إجمالي مصروفات هذه الفترة (${a}).`,
-    concentrationAction: (c) => `ابحث عن وفورات أو موردين بديلين في «${c}».`,
+    concentrationAction: (c) => `راقب هذا التركّز وراجع خطة الإنفاق على «${c}».`,
     cutCosts: "أُغلقت الفترة بخسارة.",
     cutCostsWhy: (n, e) => `صافي النتيجة ${n} مقابل إجمالي مصروفات ${e}.`,
     cutCostsAction: "أجّل الإنفاق غير الضروري حتى تغطي الإيرادات المصروفات.",
@@ -190,7 +192,7 @@ const ar: Copy = {
   r: {
     categoryGrowth: (c) => `راجع الإنفاق على «${c}» وتأكد من أن الزيادة مخطط لها.`,
     categoryGrowthWhy: (p, c, ch) => `ارتفع بنسبة ${ch}، من ${p} إلى ${c}، مقارنة بالفترة السابقة.`,
-    concentration: (c) => `ابحث عن وفورات أو موردين بديلين في «${c}».`,
+    concentration: (c) => `راقب هذا التركّز وراجع خطة الإنفاق على «${c}».`,
     concentrationWhy: (a, s) => `تمثّل ${s} من إجمالي مصروفات هذه الفترة (${a}).`,
     cutCosts: "أجّل الإنفاق غير الضروري حتى تغطي الإيرادات المصروفات.",
     cutCostsWhy: (n, e) => `صافي النتيجة ${n} مقابل إجمالي مصروفات ${e}.`,
