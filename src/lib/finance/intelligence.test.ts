@@ -36,11 +36,25 @@ describe("financial intelligence", () => {
     expect(h.status).toBe("critical");
     expect(h.reasons).toContainEqual({ key: "negativeNet", amount: -400 });
   });
-  it("flags concentration risk only when several categories exist", () => {
-    const single = analyze([tx("a", "expense", 100, "Rent", "2026-10-06")], range);
-    expect(spendingRisks(single)).toEqual([]);
+  it("flags concentration risk at 40%+ even for the only category", () => {
+    const single = analyze([tx("a", "expense", 500, "Rent", "2026-10-06")], range);
+    expect(spendingRisks(single)).toEqual([expect.objectContaining({ kind: "concentration", category: "Rent", share: 100 })]);
+    expect(single.recs).toContainEqual(expect.objectContaining({ kind: "concentration", category: "Rent", share: 100 }));
     const multi = analyze([tx("a", "expense", 300, "Rent", "2026-10-06"), tx("b", "expense", 100, "Ads", "2026-10-07")], range);
     expect(spendingRisks(multi)[0]).toMatchObject({ kind: "concentration", category: "Rent", share: 75 });
+  });
+  it("scores 90 when the only penalty is a single category above 40% of expenses", () => {
+    const r = analyze([tx("a", "income", 1000, "Sales", "2026-10-05"), tx("b", "expense", 500, "Rent", "2026-10-06")], range);
+    const h = assessHealth(r);
+    expect(h.score).toBe(90);
+    expect(h.status).toBe("healthy");
+    expect(h.reasons).toContainEqual({ key: "concentration", category: "Rent", share: 100 });
+  });
+  it("never penalizes or shows a growth percentage when previous-period revenue is zero", () => {
+    const r = analyze([tx("a", "income", 1000, "Sales", "2026-10-05"), tx("b", "expense", 500, "Rent", "2026-10-06")], range);
+    expect(r.revChange).toBeNull();
+    const h = assessHealth(r);
+    expect(h.reasons.some((x) => x.key === "revenueDrop" || x.key === "revenueGrowing")).toBe(false);
   });
   it("flags growth risk only with previous-period data", () => {
     const noPrev = analyze([tx("a", "expense", 100, "Rent", "2026-10-06"), tx("b", "expense", 100, "Ads", "2026-10-07")], range);

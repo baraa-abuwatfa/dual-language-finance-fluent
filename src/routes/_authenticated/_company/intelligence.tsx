@@ -56,6 +56,7 @@ function Intelligence() {
   const insights: string[] = [];
   if (r.revChange !== null && r.revChange > 0) insights.push(t.insights.revenueUp(pct(r.revChange), fmt(r.before.revenue), fmt(r.now.revenue)));
   if (r.revChange !== null && r.revChange < 0) insights.push(t.insights.revenueDown(pct(r.revChange), fmt(r.before.revenue), fmt(r.now.revenue)));
+  if (r.revChange === null && r.now.revenue > 0) insights.push(t.insights.noRevenueCompare);
   if (r.expChange !== null && r.expChange > 0) insights.push(r.revChange !== null && r.revChange > r.expChange ? t.insights.expensesUpCovered(pct(r.expChange), fmt(r.before.expenses), fmt(r.now.expenses), pct(r.revChange)) : t.insights.expensesUp(pct(r.expChange), fmt(r.before.expenses), fmt(r.now.expenses)));
   if (r.expChange !== null && r.expChange < 0) insights.push(t.insights.expensesDown(pct(r.expChange), fmt(r.before.expenses), fmt(r.now.expenses)));
   if (r.count > 0) insights.push(r.now.net >= 0 ? t.insights.netPositive(fmt(r.now.net)) : t.insights.netNegative(fmt(Math.abs(r.now.net))));
