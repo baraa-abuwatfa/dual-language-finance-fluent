@@ -73,6 +73,62 @@ export function analyze(txs: Tx[], range: Range, comparisonRange?: Range) {
   return { range, prevRange, now, before, revChange, expChange, netChange: before.net !== 0 ? round(((now.net - before.net) / Math.abs(before.net)) * 100, 1) : null, categories, unusual, alerts, recs, missing, count: cur.length };
 }
 
+export type Analysis = ReturnType<typeof analyze>;
+
+export type HealthStatus = "healthy" | "attention" | "critical" | "insufficient";
+export type HealthReason =
+  | { key: "negativeNet"; amount: number }
+  | { key: "expenseGrowth"; pct: number }
+  | { key: "revenueDrop"; pct: number }
+  | { key: "unusual"; count: number }
+  | { key: "concentration"; category: string; share: number }
+  | { key: "profitable"; amount: number }
+  | { key: "revenueGrowing"; pct: number }
+  | { key: "spendingStable" };
+export type Health = { status: HealthStatus; score: number; reasons: HealthReason[] };
+
+/**
+ * Overall financial condition from the same deterministic analysis.
+ * Never returns a status without data: an empty range is "insufficient".
+ */
+export function assessHealth(a: Analysis): Health {
+  if (a.missing.includes("noData")) return { status: "insufficient", score: 0, reasons: [] };
+  let score = 100;
+  const reasons: HealthReason[] = [];
+  if (a.now.net < 0) { score -= 45; reasons.push({ key: "negativeNet", amount: a.now.net }); }
+  if (a.expChange !== null && a.expChange >= 20) { score -= 20; reasons.push({ key: "expenseGrowth", pct: a.expChange }); }
+  if (a.revChange !== null && a.revChange <= -20) { score -= 20; reasons.push({ key: "revenueDrop", pct: a.revChange }); }
+  if (a.unusual.length > 0) { score -= 5 * Math.min(2, a.unusual.length); reasons.push({ key: "unusual", count: a.unusual.length }); }
+  const top = a.categories[0];
+  if (top && a.categories.length > 1 && top.share >= 40) { score -= 10; reasons.push({ key: "concentration", category: top.category, share: top.share }); }
+  if (a.now.net > 0) reasons.push({ key: "profitable", amount: a.now.net });
+  if (a.revChange !== null && a.revChange > 0) reasons.push({ key: "revenueGrowing", pct: a.revChange });
+  if (a.unusual.length === 0 && !a.missing.includes("noHistory")) reasons.push({ key: "spendingStable" });
+  return { status: score >= 75 ? "healthy" : score >= 40 ? "attention" : "critical", score: Math.max(0, score), reasons };
+}
+
+export type Risk = { kind: "concentration" | "growth"; category: string; amount: number; share: number; change: number | null; previous: number };
+
+/**
+ * Categories that carry spending risk: at least a quarter of all expenses,
+ * or growing 30%+ versus the previous period. A single category is never
+ * flagged for concentration (100% share is trivial), and growth requires
+ * previous-period data, so thin history produces no false alerts.
+ */
+export function spendingRisks(a: Analysis): Risk[] {
+  if (a.count === 0 || a.now.expenses <= 0) return [];
+  return a.categories
+    .filter((c) => (a.categories.length > 1 && c.share >= 25) || (c.change !== null && c.change >= 30))
+    .map((c) => ({ kind: a.categories.length > 1 && c.share >= 25 ? "concentration" as const : "growth" as const, category: c.category, amount: c.amount, share: c.share, change: c.change, previous: c.previous }))
+    .sort((x, y) => y.share - x.share)
+    .slice(0, 5);
+}
+
+/** Priority of a recommendation, derived from the severity of its trigger. */
+export function recPriority(rec: Rec): "high" | "medium" {
+  return rec.kind === "cutCosts" || rec.kind === "revenueFollowUp" ? "high" : "medium";
+}
+
 /** Month keys (YYYY-MM) covered by the range, capped to the last 24. */
 export function rangeMonths({ from, to }: Range) {
   const out: string[] = [];
