@@ -56,9 +56,10 @@ function Intelligence() {
   const insights: string[] = [];
   if (r.revChange !== null && r.revChange > 0) insights.push(t.insights.revenueUp(pct(r.revChange), fmt(r.before.revenue), fmt(r.now.revenue)));
   if (r.revChange !== null && r.revChange < 0) insights.push(t.insights.revenueDown(pct(r.revChange), fmt(r.before.revenue), fmt(r.now.revenue)));
-  if (r.expChange !== null && r.expChange > 0) insights.push(t.insights.expensesUp(pct(r.expChange), fmt(r.before.expenses), fmt(r.now.expenses)));
+  if (r.expChange !== null && r.expChange > 0) insights.push(r.revChange !== null && r.revChange > r.expChange ? t.insights.expensesUpCovered(pct(r.expChange), fmt(r.before.expenses), fmt(r.now.expenses), pct(r.revChange)) : t.insights.expensesUp(pct(r.expChange), fmt(r.before.expenses), fmt(r.now.expenses)));
   if (r.expChange !== null && r.expChange < 0) insights.push(t.insights.expensesDown(pct(r.expChange), fmt(r.before.expenses), fmt(r.now.expenses)));
   if (r.count > 0) insights.push(r.now.net >= 0 ? t.insights.netPositive(fmt(r.now.net)) : t.insights.netNegative(fmt(Math.abs(r.now.net))));
+  if (r.margin !== null) insights.push(t.insights.margin(`${r.margin.toFixed(1)}%`));
 
   const reasonText = (x: (typeof health.reasons)[number]) =>
     x.key === "negativeNet" ? t.health.reasons.negativeNet(fmt(Math.abs(x.amount)))
@@ -106,6 +107,7 @@ function Intelligence() {
         </div>
         <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t.health.evidence}</p>
         <ul className="mt-2 space-y-2">{health.reasons.map((x, i) => <li key={i} className="rounded-lg border-s-4 border-steel bg-background p-3 text-sm leading-6">{reasonText(x)}</li>)}</ul>
+        <p className="mt-3 text-xs text-muted-foreground">{t.health.criteria}</p>
       </>}
     </Panel>
 
@@ -118,8 +120,10 @@ function Intelligence() {
       <div className="grid gap-4 lg:grid-cols-2">
         {/* C. Unusual Expense Detection */}
         <Panel title={t.unusual.title} action={<AlertTriangle className="size-4 text-negative" aria-hidden="true" />}>
-          <p className="mb-3 text-xs text-muted-foreground">{t.unusual.thin}</p>
-          {r.unusual.length ? <ul className="space-y-2">{r.unusual.map((u) => <li key={u.tx.id} className="rounded-lg border-s-4 border-negative bg-background p-3 text-sm leading-6">{t.unusual.item(fmt(u.tx.amount), cat(u.tx.category), u.tx.occurred_on, String(u.ratio))}<span className="block text-xs text-muted-foreground">{t.unusual.why(fmt(u.tx.amount), fmt(u.average), String(u.samples))}</span></li>)}</ul> : <p className="text-sm text-muted-foreground">{t.unusual.none}</p>}
+          {r.missing.includes("noHistory") ? <p className="text-sm text-muted-foreground">{t.unusual.insufficient}</p> : <>
+            <p className="mb-3 text-xs text-muted-foreground">{t.unusual.thin}</p>
+            {r.unusual.length ? <ul className="space-y-2">{r.unusual.map((u) => <li key={u.tx.id} className="rounded-lg border-s-4 border-negative bg-background p-3 text-sm leading-6">{t.unusual.item(fmt(u.tx.amount), cat(u.tx.category), u.tx.occurred_on, String(u.ratio))}<span className="block text-xs text-muted-foreground">{t.unusual.why(fmt(u.tx.amount), fmt(u.average), String(u.samples))}</span></li>)}</ul> : <p className="text-sm text-muted-foreground">{t.unusual.none}</p>}
+          </>}
         </Panel>
 
         {/* D. Spending Risks */}
@@ -138,6 +142,7 @@ function Intelligence() {
             <p className="font-medium text-navy"><span className="font-semibold">{t.recs.issue}:</span> {issue}</p>
             <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-semibold", p === "high" ? "bg-negative/10 text-negative" : "bg-champagne-soft text-taupe")}>{t.recs.priority[p]}</span>
           </div>
+          <p className="mt-1 text-xs text-muted-foreground">{t.recs.priorityWhy[p]}</p>
           <p className="mt-1 text-xs text-muted-foreground"><span className="font-semibold">{t.recs.evidence}:</span> {evidence}</p>
           <p className="mt-1 text-xs text-navy"><span className="font-semibold">{t.recs.action}:</span> {action}</p>
         </li>; })}</ul> : <p className="text-sm text-muted-foreground">{t.recs.none}</p>}
