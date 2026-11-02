@@ -1,3 +1,9 @@
+# Financial Intelligence redesign
+- [x] Rebuilt the page as a decision-support center: health overview with evidence, key insights, unusual-expense detection, spending risks, and prioritized recommendations; removed KPI cards, trend chart, comparison table and category chart that duplicated Financial Reports.
+- [x] Added deterministic assessHealth/spendingRisks/recPriority helpers with 7 new tests; kept legacy copy keys so the Reports PDF export is unchanged. 89 tests pass, typecheck clean, build OK.
+- [ ] AI Financial Questions section: deferred — requires an approved AI dependency for chat.
+- [ ] Verify with live signed-in company data: blocked by unavailable external account session.
+
 # Professional financial reporting
 - [x] Extend existing Reports selection, preserving annual summaries and monthly tables.
 - [x] Generate bilingual multi-page PDF with charts, statements and reused evidence-based intelligence.
