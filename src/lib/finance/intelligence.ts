@@ -71,7 +71,7 @@ export function analyze(txs: Tx[], range: Range, comparisonRange?: Range) {
   if (revChange !== null && revChange <= -20) { alerts.push({ kind: "revenueDrop", current: now.revenue, previous: before.revenue, change: revChange }); recs.push({ kind: "revenueFollowUp", current: now.revenue, previous: before.revenue, change: revChange }); }
   for (const item of unusual.slice(0, 5)) { alerts.push({ kind: "unusual", item }); recs.push({ kind: "verifyUnusual", item }); }
   const top = categories[0];
-  const concentrated = top !== undefined && categories.length > 1 && top.share >= 40;
+  const concentrated = top !== undefined && top.share >= 40;
   for (const c of categories) {
     if (c.change === null || c.change < 30) continue;
     if (concentrated && c.category === top.category) continue; // already covered by the concentration recommendation
@@ -115,7 +115,7 @@ export function assessHealth(a: Analysis): Health {
   if (a.revChange !== null && a.revChange <= -20) { score -= 20; reasons.push({ key: "revenueDrop", pct: a.revChange }); }
   if (a.unusual.length > 0) { score -= 5 * Math.min(2, a.unusual.length); reasons.push({ key: "unusual", count: a.unusual.length }); }
   const top = a.categories[0];
-  if (top && a.categories.length > 1 && top.share >= 40) { score -= 10; reasons.push({ key: "concentration", category: top.category, share: top.share }); }
+  if (top && top.share >= 40) { score -= 10; reasons.push({ key: "concentration", category: top.category, share: top.share }); }
   if (a.now.net > 0) reasons.push({ key: "profitable", amount: a.now.net });
   if (a.revChange !== null && a.revChange > 0) reasons.push({ key: "revenueGrowing", pct: a.revChange });
   if (a.unusual.length === 0 && !a.missing.includes("noHistory")) reasons.push({ key: "spendingStable" });
@@ -125,16 +125,18 @@ export function assessHealth(a: Analysis): Health {
 export type Risk = { kind: "concentration" | "growth"; category: string; amount: number; share: number; change: number | null; previous: number };
 
 /**
- * Categories that carry spending risk: at least a quarter of all expenses,
- * or growing 30%+ versus the previous period. A single category is never
- * flagged for concentration (100% share is trivial), and growth requires
- * previous-period data, so thin history produces no false alerts.
+ * Categories that carry spending risk: any category at or above 40% of all
+ * expenses is always flagged for concentration (even the only category);
+ * between 25% and 40% concentration is flagged only when several categories
+ * exist. Growth of 30%+ requires previous-period data, so thin history
+ * produces no false alerts.
  */
 export function spendingRisks(a: Analysis): Risk[] {
   if (a.count === 0 || a.now.expenses <= 0) return [];
+  const isConcentration = (c: Analysis["categories"][number]) => c.share >= 40 || (a.categories.length > 1 && c.share >= 25);
   return a.categories
-    .filter((c) => (a.categories.length > 1 && c.share >= 25) || (c.change !== null && c.change >= 30))
-    .map((c) => ({ kind: a.categories.length > 1 && c.share >= 25 ? "concentration" as const : "growth" as const, category: c.category, amount: c.amount, share: c.share, change: c.change, previous: c.previous }))
+    .filter((c) => isConcentration(c) || (c.change !== null && c.change >= 30))
+    .map((c) => ({ kind: isConcentration(c) ? "concentration" as const : "growth" as const, category: c.category, amount: c.amount, share: c.share, change: c.change, previous: c.previous }))
     .sort((x, y) => y.share - x.share)
     .slice(0, 5);
 }
