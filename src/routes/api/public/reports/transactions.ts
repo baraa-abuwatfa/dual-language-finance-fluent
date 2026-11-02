@@ -27,9 +27,9 @@ export const Route = createFileRoute("/api/public/reports/transactions")({
         if (body.start_date > body.end_date) {
           return errorJson("start_date must not be after end_date", 400);
         }
-        const page = Number.isInteger(body.page) && (body.page as number) >= 1 ? (body.page as number) : 1;
-        const pageSize = Number.isInteger(body.page_size) && (body.page_size as number) >= 1
-          ? Math.min(body.page_size as number, MAX_PAGE_SIZE)
+        const page = Number.isInteger(body["page"]) && (body["page"] as number) >= 1 ? (body["page"] as number) : 1;
+        const pageSize = Number.isInteger(body["page_size"]) && (body["page_size"] as number) >= 1
+          ? Math.min(body["page_size"] as number, MAX_PAGE_SIZE)
           : DEFAULT_PAGE_SIZE;
 
         const companyId = body.company_id;
@@ -55,8 +55,8 @@ export const Route = createFileRoute("/api/public/reports/transactions")({
           .from("transactions")
           .select("id, company_id, type, amount, occurred_on, category, description", { count: "exact" })
           .eq("company_id", companyId)
-          .gte("occurred_on", body.start_date)
-          .lte("occurred_on", body.end_date)
+          .gte("occurred_on", body["start_date"] as string)
+          .lte("occurred_on", body["end_date"] as string)
           .order("occurred_on", { ascending: true })
           .order("id", { ascending: true })
           .range(from, to);
