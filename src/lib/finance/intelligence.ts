@@ -57,20 +57,29 @@ export function analyze(txs: Tx[], range: Range, comparisonRange?: Range) {
 
   const alerts: Alert[] = [], recs: Rec[] = [], missing: Missing[] = [];
   const expChange = change(now.expenses, before.expenses), revChange = change(now.revenue, before.revenue);
+  // Net profit margin: net / revenue. Null when revenue is zero — never divide by zero or invent a figure.
+  const margin = now.revenue > 0 ? round((now.net / now.revenue) * 100, 1) : null;
   if (cur.length === 0) missing.push("noData");
   if (prev.length === 0) missing.push("noPrevious");
   if (cur.some((t) => t.type === "expense") && history.length < 3) missing.push("noHistory");
   if (cur.length > 0 && now.revenue === 0) missing.push("noRevenue");
 
+  // Expense growth is only a warning when it outpaces revenue growth (or revenue can't be compared).
+  const expOutpacing = expChange !== null && expChange >= 20 && (revChange === null || expChange > revChange);
   if (cur.length > 0 && now.net < 0) { alerts.push({ kind: "negativeNet", net: now.net }); recs.push({ kind: "cutCosts", net: now.net, expenses: now.expenses }); }
-  if (expChange !== null && expChange >= 20) alerts.push({ kind: "expenseGrowth", current: now.expenses, previous: before.expenses, change: expChange });
+  if (expOutpacing) alerts.push({ kind: "expenseGrowth", current: now.expenses, previous: before.expenses, change: expChange });
   if (revChange !== null && revChange <= -20) { alerts.push({ kind: "revenueDrop", current: now.revenue, previous: before.revenue, change: revChange }); recs.push({ kind: "revenueFollowUp", current: now.revenue, previous: before.revenue, change: revChange }); }
   for (const item of unusual.slice(0, 5)) { alerts.push({ kind: "unusual", item }); recs.push({ kind: "verifyUnusual", item }); }
-  for (const c of categories) if (c.change !== null && c.change >= 30) recs.push({ kind: "categoryGrowth", category: c.category, current: c.amount, previous: c.previous, change: c.change });
   const top = categories[0];
-  if (top && categories.length > 1 && top.share >= 40) recs.push({ kind: "concentration", category: top.category, amount: top.amount, share: top.share });
+  const concentrated = top !== undefined && categories.length > 1 && top.share >= 40;
+  for (const c of categories) {
+    if (c.change === null || c.change < 30) continue;
+    if (concentrated && c.category === top.category) continue; // already covered by the concentration recommendation
+    recs.push({ kind: "categoryGrowth", category: c.category, current: c.amount, previous: c.previous, change: c.change });
+  }
+  if (concentrated) recs.push({ kind: "concentration", category: top.category, amount: top.amount, share: top.share });
 
-  return { range, prevRange, now, before, revChange, expChange, netChange: before.net !== 0 ? round(((now.net - before.net) / Math.abs(before.net)) * 100, 1) : null, categories, unusual, alerts, recs, missing, count: cur.length };
+  return { range, prevRange, now, before, revChange, expChange, margin, netChange: before.net !== 0 ? round(((now.net - before.net) / Math.abs(before.net)) * 100, 1) : null, categories, unusual, alerts, recs, missing, count: cur.length };
 }
 
 export type Analysis = ReturnType<typeof analyze>;
