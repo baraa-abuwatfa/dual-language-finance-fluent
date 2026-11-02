@@ -34,7 +34,7 @@ export const Route = createFileRoute("/api/public/reports/transactions")({
           ? Math.min(body["page_size"] as number, MAX_PAGE_SIZE)
           : DEFAULT_PAGE_SIZE;
 
-        const companyId = body.company_id;
+        const companyId = body["company_id"] as string;
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
         // Verify the company exists and get its currency before reading data.
