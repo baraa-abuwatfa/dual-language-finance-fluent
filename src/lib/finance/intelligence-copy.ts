@@ -11,6 +11,7 @@ const en = {
     score: (s: string) => `Health score: ${s}/100`,
     status: { healthy: "Healthy", attention: "Needs Attention", critical: "Critical", insufficient: "Insufficient Data" },
     insufficient: "There is not enough recorded data in this range to assess the company's condition. Add transactions or choose a wider range.",
+    criteria: "How the score is calculated: it starts at 100. A net loss deducts 45; expenses growing 20%+ faster than revenue deducts 20; a revenue drop of 20%+ deducts 20; each statistically unusual expense deducts 5 (up to 10); a single category above 40% of expenses deducts 10. Healthy ≥ 75, Needs Attention ≥ 40, below that Critical. Missing data never deducts points.",
     evidence: "Evidence behind this assessment",
     reasons: {
       negativeNet: ((n) => `Expenses exceeded revenue by ${n} in this period.`) as F,
@@ -28,10 +29,12 @@ const en = {
     none: "No meaningful change detected in this period.",
     revenueUp: ((p, prev, cur) => `Revenue rose ${p} (${prev} → ${cur}). The business generated more income than in the previous period.`) as F,
     revenueDown: ((p, prev, cur) => `Revenue fell ${p} (${prev} → ${cur}). Less income came in than in the previous period.`) as F,
-    expensesUp: ((p, prev, cur) => `Expenses rose ${p} (${prev} → ${cur}). Spending is growing faster than before — check whether it is planned.`) as F,
+    expensesUp: ((p, prev, cur) => `Expenses rose ${p} (${prev} → ${cur}). Spending increased compared with the previous period.`) as F,
+    expensesUpCovered: ((p, prev, cur, rp) => `Expenses rose ${p} (${prev} → ${cur}), but revenue grew faster (${rp}), so the increase is supported by income growth.`) as F,
     expensesDown: ((p, prev, cur) => `Expenses fell ${p} (${prev} → ${cur}). Spending is lower than in the previous period.`) as F,
     netPositive: ((n) => `The period closed profitable with a net result of ${n}.`) as F,
     netNegative: ((n) => `The period closed at a loss of ${n} — expenses exceeded revenue.`) as F,
+    margin: ((m) => `Net profit margin is ${m} of revenue — the share of income kept after all expenses.`) as F,
   },
   unusual: {
     title: "Unusual Expense Detection",
