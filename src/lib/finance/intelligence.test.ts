@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { analyze, previousRange, rangeMonths } from "./intelligence";
+import { analyze, assessHealth, previousRange, rangeMonths, recPriority, spendingRisks } from "./intelligence";
 import type { Tx } from "./metrics";
 
 const tx = (id: string, type: Tx["type"], amount: number, category: string, occurred_on: string): Tx => ({ id, type, amount, category, description: null, occurred_on });

@@ -1,17 +1,17 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { AlertTriangle, Info, Lightbulb, TrendingDown, TrendingUp, Wallet } from "lucide-react";
-import { EmptyState, PageError, PageHeader, PageNotFound, Panel, StatCard } from "@/components/app/ui";
-import { MonthlyChart, CategoryChart } from "@/components/app/charts";
+import { Activity, AlertTriangle, ArrowRight, HeartPulse, Info, Lightbulb, ShieldAlert, Sparkles } from "lucide-react";
+import { EmptyState, PageError, PageHeader, PageNotFound, Panel } from "@/components/app/ui";
 import { Button } from "@/components/ui/button";
 import { authHead } from "@/lib/auth/head";
 import { useAppCopy, useCompany } from "@/lib/company/use-company";
 import { categoryLabel } from "@/lib/finance/categories";
-import { analyze, inRange, rangeMonths, type Range } from "@/lib/finance/intelligence";
+import { analyze, assessHealth, recPriority, spendingRisks, type Range, type Rec } from "@/lib/finance/intelligence";
 import { intelCopy } from "@/lib/finance/intelligence-copy";
-import { lastMonths, monthlySeries } from "@/lib/finance/metrics";
+import { lastMonths } from "@/lib/finance/metrics";
 import { formatAmount, todayIso, transactionsQuery } from "@/lib/finance/queries";
+import { cn } from "@/lib/utils";
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 function preset(months: number): Range {
@@ -24,15 +24,17 @@ export const Route = createFileRoute("/_authenticated/_company/intelligence")({
     const from = s["from"], to = s["to"];
     return { from: typeof from === "string" && ISO.test(from) ? from : undefined, to: typeof to === "string" && ISO.test(to) ? to : undefined };
   },
-  head: () => authHead("Financial Intelligence", "Rule-based trends, comparisons, alerts and recommendations from your recorded transactions."),
+  head: () => authHead("Financial Intelligence", "Rule-based decision support: financial health, risks and recommendations from your recorded transactions."),
   loader: ({ context }) => context.queryClient.ensureQueryData(transactionsQuery(context.company.id)),
   component: Intelligence,
   errorComponent: PageError,
   notFoundComponent: PageNotFound,
 });
 
+const healthTone = { healthy: "border-positive text-positive", attention: "border-taupe text-taupe", critical: "border-negative text-negative", insufficient: "border-mist text-muted-foreground" } as const;
+
 function Intelligence() {
-  const { t: app, locale } = useAppCopy();
+  const { locale } = useAppCopy();
   const t = intelCopy[locale];
   const { company } = useCompany();
   const { data: txs } = useSuspenseQuery(transactionsQuery(company.id));
@@ -47,20 +49,34 @@ function Intelligence() {
   const fmt = (v: number) => formatAmount(v, company.currency);
   const pct = (v: number | null) => (v === null ? "—" : `${v > 0 ? "+" : ""}${v.toFixed(1)}%`);
   const r = analyze(txs, range.from <= range.to ? range : def);
-  const series = monthlySeries(inRange(txs, r.range), rangeMonths(r.range));
-  const cmp = (v: number | null) => (v === null ? t.noCompare : t.vsPrev(pct(v)));
+  const health = assessHealth(r);
+  const risks = spendingRisks(r);
+  const cat = (c: string) => categoryLabel(c, locale);
 
-  const alertText = (a: (typeof r.alerts)[number]) =>
-    a.kind === "negativeNet" ? t.a.negativeNet(fmt(Math.abs(a.net)))
-    : a.kind === "unusual" ? t.a.unusual(fmt(a.item.tx.amount), categoryLabel(a.item.tx.category, locale), a.item.tx.occurred_on, String(a.item.ratio))
-    : t.a[a.kind](fmt(a.current), fmt(a.previous), pct(a.change));
-  const recText = (x: (typeof r.recs)[number]): [string, string] => {
+  const insights: string[] = [];
+  if (r.revChange !== null && r.revChange > 0) insights.push(t.insights.revenueUp(pct(r.revChange), fmt(r.before.revenue), fmt(r.now.revenue)));
+  if (r.revChange !== null && r.revChange < 0) insights.push(t.insights.revenueDown(pct(r.revChange), fmt(r.before.revenue), fmt(r.now.revenue)));
+  if (r.expChange !== null && r.expChange > 0) insights.push(t.insights.expensesUp(pct(r.expChange), fmt(r.before.expenses), fmt(r.now.expenses)));
+  if (r.expChange !== null && r.expChange < 0) insights.push(t.insights.expensesDown(pct(r.expChange), fmt(r.before.expenses), fmt(r.now.expenses)));
+  if (r.count > 0) insights.push(r.now.net >= 0 ? t.insights.netPositive(fmt(r.now.net)) : t.insights.netNegative(fmt(Math.abs(r.now.net))));
+
+  const reasonText = (x: (typeof health.reasons)[number]) =>
+    x.key === "negativeNet" ? t.health.reasons.negativeNet(fmt(Math.abs(x.amount)))
+    : x.key === "expenseGrowth" ? t.health.reasons.expenseGrowth(pct(x.pct))
+    : x.key === "revenueDrop" ? t.health.reasons.revenueDrop(pct(x.pct))
+    : x.key === "unusual" ? t.health.reasons.unusual(String(x.count))
+    : x.key === "concentration" ? t.health.reasons.concentration(cat(x.category), `${x.share.toFixed(1)}%`)
+    : x.key === "profitable" ? t.health.reasons.profitable(fmt(x.amount))
+    : x.key === "revenueGrowing" ? t.health.reasons.revenueGrowing(pct(x.pct))
+    : t.health.reasons.spendingStable;
+
+  const recText = (x: Rec): [string, string, string] => {
     switch (x.kind) {
-      case "categoryGrowth": return [t.r.categoryGrowth(categoryLabel(x.category, locale)), t.r.categoryGrowthWhy(fmt(x.previous), fmt(x.current), pct(x.change))];
-      case "concentration": return [t.r.concentration(categoryLabel(x.category, locale)), t.r.concentrationWhy(fmt(x.amount), `${x.share.toFixed(1)}%`)];
-      case "cutCosts": return [t.r.cutCosts, t.r.cutCostsWhy(fmt(x.net), fmt(x.expenses))];
-      case "revenueFollowUp": return [t.r.revenueFollowUp, t.r.revenueFollowUpWhy(fmt(x.previous), fmt(x.current), pct(x.change))];
-      case "verifyUnusual": return [t.r.verifyUnusual(categoryLabel(x.item.tx.category, locale)), t.r.verifyUnusualWhy(fmt(x.item.tx.amount), fmt(x.item.average), String(x.item.samples))];
+      case "categoryGrowth": return [t.recs.categoryGrowth(cat(x.category)), t.recs.categoryGrowthWhy(fmt(x.previous), fmt(x.current), pct(x.change)), t.recs.categoryGrowthAction(cat(x.category))];
+      case "concentration": return [t.recs.concentration(cat(x.category)), t.recs.concentrationWhy(fmt(x.amount), `${x.share.toFixed(1)}%`), t.recs.concentrationAction(cat(x.category))];
+      case "cutCosts": return [t.recs.cutCosts, t.recs.cutCostsWhy(fmt(x.net), fmt(x.expenses)), t.recs.cutCostsAction];
+      case "revenueFollowUp": return [t.recs.revenueFollowUp, t.recs.revenueFollowUpWhy(fmt(x.previous), fmt(x.current), pct(x.change)), t.recs.revenueFollowUpAction];
+      case "verifyUnusual": return [t.recs.verifyUnusual(cat(x.item.tx.category)), t.recs.verifyUnusualWhy(fmt(x.item.tx.amount), fmt(x.item.average), String(x.item.samples)), t.recs.verifyUnusualAction(cat(x.item.tx.category))];
     }
   };
   const input = "h-10 rounded-md border border-input bg-card px-3 text-sm num focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring";
@@ -76,37 +92,58 @@ function Intelligence() {
       </form>
       {invalid && <p role="alert" className="mt-2 text-sm text-negative">{t.invalidRange}</p>}
       <p className="mt-3 flex items-start gap-2 text-xs text-muted-foreground"><Info className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />{t.method} · <span className="num">{r.range.from} → {r.range.to}</span> · {t.records(String(r.count))}</p>
+      <p className="mt-2 text-xs text-muted-foreground"><Link to="/reports" className="inline-flex items-center gap-1 font-medium text-steel underline-offset-4 hover:underline">{t.reportsLink}<ArrowRight className="size-3.5 rtl:-scale-x-100" aria-hidden="true" /></Link></p>
     </Panel>
 
     {r.missing.length > 0 && <Panel title={t.missingTitle}><ul className="space-y-2">{r.missing.map((m) => <li key={m} className="rounded-lg border-s-4 border-mist bg-background p-3 text-sm leading-6">{t.missing[m]}</li>)}</ul></Panel>}
 
+    {/* A. Financial Health Overview */}
+    <Panel title={t.health.title} action={<HeartPulse className="size-4 text-steel" aria-hidden="true" />}>
+      {health.status === "insufficient" ? <EmptyState text={t.health.insufficient} /> : <>
+        <div className="flex flex-wrap items-center gap-3">
+          <span className={cn("rounded-full border-2 px-4 py-1.5 text-sm font-bold", healthTone[health.status])}>{t.health.status[health.status]}</span>
+          <span className="num text-sm text-muted-foreground">{t.health.score(String(health.score))}</span>
+        </div>
+        <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t.health.evidence}</p>
+        <ul className="mt-2 space-y-2">{health.reasons.map((x, i) => <li key={i} className="rounded-lg border-s-4 border-steel bg-background p-3 text-sm leading-6">{reasonText(x)}</li>)}</ul>
+      </>}
+    </Panel>
+
     {r.count > 0 && <>
-      <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard label={app.revenue} value={fmt(r.now.revenue)} caption={cmp(r.revChange)} icon={<TrendingUp />} />
-        <StatCard label={app.expenses} value={fmt(r.now.expenses)} caption={cmp(r.expChange)} icon={<TrendingDown />} />
-        <StatCard label={app.netProfit} value={fmt(r.now.net)} tone={r.now.net >= 0 ? "positive" : "negative"} caption={cmp(r.netChange)} icon={<Wallet />} />
-      </div>
+      {/* B. Key Financial Insights */}
+      <Panel title={t.insights.title} action={<Activity className="size-4 text-steel" aria-hidden="true" />}>
+        {insights.length ? <ul className="space-y-2">{insights.map((s, i) => <li key={i} className="rounded-lg border-s-4 border-champagne bg-background p-3 text-sm leading-6">{s}</li>)}</ul> : <p className="text-sm text-muted-foreground">{t.insights.none}</p>}
+      </Panel>
+
       <div className="grid gap-4 lg:grid-cols-2">
-        <Panel title={t.trends}><MonthlyChart data={series} currency={company.currency} />
-          <ul className="mt-3 grid gap-1 text-xs text-muted-foreground">{series.filter((m) => m.revenue || m.expenses).map((m) => <li key={m.month} className="flex justify-between gap-2"><span className="num">{m.month}</span><span className={`num ${m.net < 0 ? "text-negative" : "text-positive"}`}>{app.netProfit}: {fmt(m.net)}</span></li>)}</ul>
+        {/* C. Unusual Expense Detection */}
+        <Panel title={t.unusual.title} action={<AlertTriangle className="size-4 text-negative" aria-hidden="true" />}>
+          <p className="mb-3 text-xs text-muted-foreground">{t.unusual.thin}</p>
+          {r.unusual.length ? <ul className="space-y-2">{r.unusual.map((u) => <li key={u.tx.id} className="rounded-lg border-s-4 border-negative bg-background p-3 text-sm leading-6">{t.unusual.item(fmt(u.tx.amount), cat(u.tx.category), u.tx.occurred_on, String(u.ratio))}<span className="block text-xs text-muted-foreground">{t.unusual.why(fmt(u.tx.amount), fmt(u.average), String(u.samples))}</span></li>)}</ul> : <p className="text-sm text-muted-foreground">{t.unusual.none}</p>}
         </Panel>
-        <Panel title={t.comparison}>
-          <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="border-b border-border text-start text-xs text-muted-foreground"><th className="py-2 text-start font-medium">{t.metric}</th><th className="py-2 text-end font-medium">{t.current}</th><th className="py-2 text-end font-medium">{t.previous}</th><th className="py-2 text-end font-medium">{t.change}</th></tr></thead>
-            <tbody>{([[app.revenue, r.now.revenue, r.before.revenue, r.revChange], [app.expenses, r.now.expenses, r.before.expenses, r.expChange], [app.netProfit, r.now.net, r.before.net, r.netChange]] as const).map(([l, c, p, ch]) => <tr key={l} className="border-b border-border/60"><td className="py-2.5 font-medium text-navy">{l}</td><td className="num py-2.5 text-end">{fmt(c)}</td><td className="num py-2.5 text-end text-muted-foreground">{fmt(p)}</td><td className="num py-2.5 text-end">{pct(ch)}</td></tr>)}</tbody></table></div>
-          <p className="mt-2 text-xs text-muted-foreground num">{r.prevRange.from} → {r.prevRange.to}</p>
+
+        {/* D. Spending Risks */}
+        <Panel title={t.risks.title} action={<ShieldAlert className="size-4 text-taupe" aria-hidden="true" />}>
+          {risks.length ? <ul className="space-y-2">{risks.map((k) => <li key={k.category} className="rounded-lg border-s-4 border-taupe bg-background p-3 text-sm leading-6">
+            {k.kind === "concentration" ? t.risks.concentration(cat(k.category), fmt(k.amount), `${k.share.toFixed(1)}%`) : t.risks.growth(cat(k.category), fmt(k.previous), fmt(k.amount), pct(k.change))}
+            <span className="block text-xs text-muted-foreground">{k.kind === "concentration" ? t.risks.concentrationImpact : t.risks.growthImpact}</span>
+          </li>)}</ul> : <p className="text-sm text-muted-foreground">{t.risks.none}</p>}
         </Panel>
       </div>
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Panel title={t.categories}>{r.categories.length ? <>
-          <CategoryChart data={r.categories} currency={company.currency} />
-          <ul className="mt-4 space-y-1.5 text-sm">{r.categories.map((c) => <li key={c.category} className="flex justify-between gap-3 border-b border-border/60 pb-1.5"><span className="truncate">{categoryLabel(c.category, locale)}</span><span className="num shrink-0 text-muted-foreground">{fmt(c.amount)} · {pct(c.change)}</span></li>)}</ul>
-        </> : <EmptyState text={app.categoryEmpty} />}</Panel>
-        <Panel title={t.unusual}>{r.unusual.length ? <ul className="space-y-2">{r.unusual.map((u) => <li key={u.tx.id} className="rounded-lg border-s-4 border-negative bg-background p-3 text-sm leading-6">{t.a.unusual(fmt(u.tx.amount), categoryLabel(u.tx.category, locale), u.tx.occurred_on, String(u.ratio))}<span className="block text-xs text-muted-foreground">{t.r.verifyUnusualWhy(fmt(u.tx.amount), fmt(u.average), String(u.samples))}</span></li>)}</ul> : <p className="text-sm text-muted-foreground">{t.unusualNone}</p>}</Panel>
-      </div>
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Panel title={t.alerts} action={<AlertTriangle className="size-4 text-negative" aria-hidden="true" />}>{r.alerts.length ? <ul className="space-y-2">{r.alerts.map((a, i) => <li key={i} className="rounded-lg border-s-4 border-negative bg-background p-3 text-sm leading-6">{alertText(a)}</li>)}</ul> : <p className="text-sm text-muted-foreground">{t.alertsNone}</p>}</Panel>
-        <Panel title={t.recs} action={<Lightbulb className="size-4 text-taupe" aria-hidden="true" />}>{r.recs.length ? <ul className="space-y-2">{r.recs.map((x, i) => { const [what, why] = recText(x); return <li key={i} className="rounded-lg border-s-4 border-champagne bg-background p-3 text-sm leading-6"><p className="font-medium text-navy">{what}</p><p className="text-xs text-muted-foreground"><span className="font-semibold">{t.why}:</span> {why}</p></li>; })}</ul> : <p className="text-sm text-muted-foreground">{t.recsNone}</p>}</Panel>
-      </div>
+
+      {/* E. Decision Support & Recommendations */}
+      <Panel title={t.recs.title} action={<Lightbulb className="size-4 text-taupe" aria-hidden="true" />}>
+        {r.recs.length ? <ul className="space-y-2">{r.recs.map((x, i) => { const [issue, evidence, action] = recText(x); const p = recPriority(x); return <li key={i} className="rounded-lg border-s-4 border-champagne bg-background p-3 text-sm leading-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="font-medium text-navy"><span className="font-semibold">{t.recs.issue}:</span> {issue}</p>
+            <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-semibold", p === "high" ? "bg-negative/10 text-negative" : "bg-champagne-soft text-taupe")}>{t.recs.priority[p]}</span>
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground"><span className="font-semibold">{t.recs.evidence}:</span> {evidence}</p>
+          <p className="mt-1 text-xs text-navy"><span className="font-semibold">{t.recs.action}:</span> {action}</p>
+        </li>; })}</ul> : <p className="text-sm text-muted-foreground">{t.recs.none}</p>}
+      </Panel>
     </>}
+
+    {r.count === 0 && <Panel><EmptyState text={t.missing.noData} icon={<Sparkles />} /></Panel>}
   </>;
 }
