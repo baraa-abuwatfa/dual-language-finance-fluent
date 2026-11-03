@@ -33,7 +33,9 @@ function createSupabaseAdminClient() {
   // Fallback to the same public project URL the browser client uses, because
   // server env vars were not carried over when this project was transferred.
   const SUPABASE_URL = process.env['SUPABASE_URL'] || "https://tpjqwnfxwkhsdzpkylak.supabase.co";
-  const SUPABASE_SERVICE_ROLE_KEY = process.env['SUPABASE_SERVICE_ROLE_KEY'];
+  // SERVICE_ROLE_KEY is an accepted alternative name because the SUPABASE_
+  // prefix is reserved for managed secrets in this project's secret store.
+  const SUPABASE_SERVICE_ROLE_KEY = process.env['SUPABASE_SERVICE_ROLE_KEY'] || process.env['SERVICE_ROLE_KEY'];
 
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     const missing = [

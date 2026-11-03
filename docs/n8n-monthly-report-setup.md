@@ -144,7 +144,7 @@ in frontend code or logs):
 | `N8N_REPORT_TOKEN` | Token n8n sends to the two report endpoints | n8n HTTP Request nodes → header `x-report-token` |
 | `N8N_WEBHOOK_URL` | Full URL of the n8n webhook (`…/webhook/ai-cfo/monthly-report`) | — |
 | `N8N_WEBHOOK_SECRET` | Header Auth value for the n8n Webhook node | n8n Webhook node → Header Auth (`x-ai-cfo-report-key`) |
-| `SUPABASE_SERVICE_ROLE_KEY` | Lets the report endpoints read the owner email from `auth.users` | Supabase Dashboard → Settings → API → service_role key |
+| `SERVICE_ROLE_KEY` | Lets the report endpoints read the owner email from `auth.users` | Supabase Dashboard → Settings → API → service_role key |
 
 ## n8n workflow wiring (existing workflow, no new workflows)
 
