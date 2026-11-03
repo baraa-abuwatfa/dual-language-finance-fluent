@@ -28,3 +28,6 @@
 - [x] Verify validation rules and public navigation; report unavailable checks.
 - [x] Verify existing Supabase connection, Auth settings, hosted tables/RLS and signed-out create_company RPC protection without database changes.
 - [ ] Verify live sign-up, sign-in, session restoration, logout, recovery and successful company creation: blocked by no existing Auth users or managed test session for this external Supabase connection; confirmation/recovery redirect allowlists also require verification.
+# n8n monthly report
+- [x] Build token-authenticated report endpoints (company + paginated transactions) and the owner-only n8n webhook trigger; secrets saved; 104 tests pass.
+- [ ] Test both endpoints with the real token and a real company id, and run one end-to-end n8n workflow execution: requires the saved secrets and the user's n8n instance.
