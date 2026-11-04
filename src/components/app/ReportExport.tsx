@@ -9,10 +9,11 @@ export function ReportExport({ report, company, locale }: { report: FinancialRep
   const identity = `${company.id}:${company.name}:${company.currency}:${locale}:${report.selection.type}:${report.selection.year}:${report.selection.month}`;
   const [result, setResult] = useState<{ blob: Blob; filename: string; identity: string; report: FinancialReport; deliver: Delivery }>();
   const [failed, setFailed] = useState(false), [retry, setRetry] = useState(0);
+  const [archive, setArchive] = useState<"idle" | "saving" | "saved" | "failed">("idle");
   const downloadLock = useRef(false);
   useEffect(() => {
     let cancelled = false;
-    setResult(undefined); setFailed(false);
+    setResult(undefined); setFailed(false); setArchive("idle");
     const timer = setTimeout(async () => {
       try {
         const { generateReportPdf, reportFilename, deliverReport } = await import("@/lib/finance/report-pdf");
@@ -27,7 +28,17 @@ export function ReportExport({ report, company, locale }: { report: FinancialRep
   const download = async () => {
     if (!ready || !result || downloadLock.current) return;
     downloadLock.current = true;
-    try { await result.deliver(result.blob, result.filename); }
+    try {
+      await result.deliver(result.blob, result.filename);
+      // Archive a copy in company storage after the download succeeds. The
+      // download stays primary: an archive failure never blocks or undoes it.
+      setArchive("saving");
+      try {
+        const { uploadReportCopy } = await import("@/lib/finance/report-storage");
+        await uploadReportCopy({ companyId: company.id, selection: report.selection, blob: result.blob });
+        setArchive("saved");
+      } catch { setArchive("failed"); }
+    }
     catch { setFailed(true); }
     finally { downloadLock.current = false; }
   };
@@ -37,5 +48,8 @@ export function ReportExport({ report, company, locale }: { report: FinancialRep
       {ready || failed ? t.download : t.generating}
     </Button>
     {failed && <p role="alert" className="text-sm text-negative">{t.error}</p>}
+    {archive === "saving" && <p className="text-xs text-muted-foreground">{t.archiving}</p>}
+    {archive === "saved" && <p className="text-xs text-muted-foreground">{t.archived}</p>}
+    {archive === "failed" && <p role="alert" className="text-xs text-negative">{t.archiveFailed}</p>}
   </div>;
 }

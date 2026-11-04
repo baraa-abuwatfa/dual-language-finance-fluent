@@ -2,6 +2,8 @@ const en = {
   configuration: "Report configuration", type: "Report type", monthly: "Monthly Financial Report", annual: "Annual Financial Report",
   download: "Download Financial Report PDF", generating: "Preparing financial report…", ready: "Your PDF is ready. Download Financial Report PDF",
   error: "The report could not be prepared. Please try again.", generated: "Generated", period: "Reporting period", currency: "Reporting currency",
+  archiving: "Saving an archive copy to your company records…", archived: "An archive copy was saved to your company records.",
+  archiveFailed: "The PDF downloaded, but the archive copy could not be saved. Your download is not affected.",
   summary: "Executive Summary", performance: "Financial Performance Analysis", revenue: "Revenue Analysis", expenses: "Expense Analysis",
   statements: "Detailed Financial Statements", intelligence: "Financial Intelligence & Recommendations", conclusion: "Executive Conclusion",
   income: "Total Revenue", spending: "Total Expenses", net: "Net Profit / Loss", margin: "Profit Margin", category: "Category", amount: "Amount", share: "Share",
