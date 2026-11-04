@@ -15,6 +15,7 @@
 - Pending external-database invoice SQL is documented in docs/invoice-processing-setup.sql, not claimed as an applied migration. Why: this transferred project has no managed database migration access.
 - Multi-company access is enforced in Postgres RLS via `private.*` security-definer helpers keyed on `auth.uid()`; companies are created only through `public.create_company()` so the creator becomes owner atomically. Why: keeps tenant isolation in the database, not app code.
 - New public tables must explicitly REVOKE anon/PUBLIC and grant only needed privileges. Why: this Supabase project's default privileges grant ALL to anon/authenticated.
+- Exported report PDFs are also archived client-side to the private `financial-reports` bucket at `company_id/year/month/monthly-report.pdf` (annual: `company_id/year/annual-report.pdf`) with an upserted `public.report_files` row keyed on (company_id, report_type, year, month; month 0 = annual). Why: re-exports replace instead of duplicating, and the company id as first path segment lets `private.storage_company(name)` enforce tenant isolation; pending SQL lives in docs/financial-reports-storage-setup.sql.
 
 ## Authentication
 - Reports use a report-only paginated company-scoped transaction query and the existing intelligence engine with an optional calendar comparison range; PDF pages are rendered locally with a bundled Arabic font and embedded through pdf-lib. Why: complete reporting without truncation, duplicated analysis, server costs or broken Arabic shaping; existing intelligence defaults remain unchanged.
